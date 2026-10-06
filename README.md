@@ -6,6 +6,7 @@ GitHub Pagesで静的ホスティングされ、スマホ・PCのどちらでも
 ## 🎮 公開URL
 - **ポータル（ゲーム一覧）**: [https://araipanda.github.io/web_game/](https://araipanda.github.io/web_game/)
 - **飛び立て！ずんだもん**: [https://araipanda.github.io/web_game/flappy-zunda.html](https://araipanda.github.io/web_game/flappy-zunda.html)
+- **英単語ラッシュ**: [https://araipanda.github.io/web_game/word-rush.html](https://araipanda.github.io/web_game/word-rush.html)
 
 ---
 
@@ -20,6 +21,17 @@ GitHub Pagesで静的ホスティングされ、スマホ・PCのどちらでも
   - 可変リフレッシュレート対応（`deltaTime`正規化により60Hz/90Hz/120Hzスマホで速度一定）
   - Safari 16未満対応（`roundRect`ポリフィル搭載）
   - BGM/SEミュート切替対応（設定はローカルストレージ保存）
+
+### 2. 英単語ラッシュ（Word Rush）
+- **ファイル**: `word-rush.html`（`word_rush.html`）
+- **概要**: 60秒間でどれだけ英単語を回答できるかを競う超高速3択タイムアタックゲーム。
+- **特徴**:
+  - 外部アセットゼロ（HTML1枚完結・CSSアニメーション＋Web Audio APIによるシンセ効果音）
+  - 3難易度（Easy/Normal/Hard）× 各75語 ＝ 計225語収録
+  - 誤答選択肢の動的ランダムサンプリング（同義語・重複選択肢の排除ガード搭載）
+  - 周回プレイ時の連続重複出題防止ガード（20万回シミュレーション検証済み）
+  - コンボ＆スピードボーナス、FEVERモード、localStorageハイスコア記録
+  - 回答後の高速遷移（130ms/250ms）と誤連打防止ディレイガード搭載
 
 ---
 
