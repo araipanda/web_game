@@ -640,7 +640,7 @@
 
       <div class="rule-card">
         <ul>
-          <li>⏱️ <strong>全10問クイック出題</strong>（各ジャンルからバランス出題）</li>
+          <li>⏱️ <strong>全20問出題</strong>（4ジャンル各5問バランス出題）</li>
           <li>⏳ <strong>1問8秒</strong>のシンキングタイム！</li>
           <li>🗺️ 終了後に<strong>答え合わせ＆Google マップ詳細リンク</strong>付き！</li>
         </ul>
@@ -653,7 +653,7 @@
     <section id="play-screen" class="screen">
       <div class="play-header">
         <div class="play-stats-row">
-          <span id="question-badge" class="q-badge">第 1 / 10 問</span>
+          <span id="question-badge" class="q-badge">第 1 / 20 問</span>
           <div class="score-badge">
             <span>⭕ 正解: </span>
             <strong id="correct-count" style="color: #38bdf8;">0</strong>
@@ -686,7 +686,7 @@
       <div class="result-summary-card">
         <div id="result-rank" class="result-rank-title">全国観光大使 🏆</div>
         <div class="result-score-large">
-          <span id="result-correct-num">8</span> <span>/ 10 問</span>
+          <span id="result-correct-num">18</span> <span>/ 20 問</span>
         </div>
         <div class="result-stats-row">
           <div>正答率: <span id="result-accuracy" class="result-stat-val">80%</span></div>
@@ -713,55 +713,183 @@
     (function() {
       'use strict';
 
-      // --- 全40問出題データベース ---
+      // --- 全171問出題データベース（温泉47・名道30・名所47・グルメ47） ---
       const QUIZ_DATABASE = [
-        // 1. 百名湯（日本百名湯_一覧と名湯の選定基準.md 抜粋）
+        // 1. 温泉（47都道府県完全網羅・47問）
         { genre: "温泉", spot: "登別温泉", prefecture: "北海道", icon: "♨️", mapQuery: "登別温泉 北海道" },
+        { genre: "温泉", spot: "酸ヶ湯温泉", prefecture: "青森県", icon: "♨️", mapQuery: "酸ヶ湯温泉 青森県" },
+        { genre: "温泉", spot: "花巻温泉郷", prefecture: "岩手県", icon: "♨️", mapQuery: "花巻温泉郷 岩手県" },
+        { genre: "温泉", spot: "鳴子温泉", prefecture: "宮城県", icon: "♨️", mapQuery: "鳴子温泉 宮城県" },
         { genre: "温泉", spot: "乳頭温泉郷", prefecture: "秋田県", icon: "♨️", mapQuery: "乳頭温泉郷 秋田県" },
-        { genre: "温泉", spot: "蔵王温泉", prefecture: "山形県", icon: "♨️", mapQuery: "蔵王温泉 山形県" },
+        { genre: "温泉", spot: "銀山温泉", prefecture: "山形県", icon: "♨️", mapQuery: "銀山温泉 山形県" },
+        { genre: "温泉", spot: "飯坂温泉", prefecture: "福島県", icon: "♨️", mapQuery: "飯坂温泉 福島県" },
+        { genre: "温泉", spot: "筑波山温泉", prefecture: "茨城県", icon: "♨️", mapQuery: "筑波山温泉 茨城県" },
+        { genre: "温泉", spot: "鬼怒川温泉", prefecture: "栃木県", icon: "♨️", mapQuery: "鬼怒川温泉 栃木県" },
         { genre: "温泉", spot: "草津温泉", prefecture: "群馬県", icon: "♨️", mapQuery: "草津温泉 群馬県" },
+        { genre: "温泉", spot: "秩父温泉", prefecture: "埼玉県", icon: "♨️", mapQuery: "秩父温泉 埼玉県" },
+        { genre: "温泉", spot: "養老渓谷温泉", prefecture: "千葉県", icon: "♨️", mapQuery: "養老渓谷温泉 千葉県" },
+        { genre: "温泉", spot: "奥多摩温泉", prefecture: "東京都", icon: "♨️", mapQuery: "奥多摩温泉 東京都" },
         { genre: "温泉", spot: "箱根湯本温泉", prefecture: "神奈川県", icon: "♨️", mapQuery: "箱根湯本温泉 神奈川県" },
+        { genre: "温泉", spot: "越後湯沢温泉", prefecture: "新潟県", icon: "♨️", mapQuery: "越後湯沢温泉 新潟県" },
+        { genre: "温泉", spot: "宇奈月温泉", prefecture: "富山県", icon: "♨️", mapQuery: "宇奈月温泉 富山県" },
+        { genre: "温泉", spot: "和倉温泉", prefecture: "石川県", icon: "♨️", mapQuery: "和倉温泉 石川県" },
+        { genre: "温泉", spot: "あわら温泉", prefecture: "福井県", icon: "♨️", mapQuery: "あわら温泉 福井県" },
+        { genre: "温泉", spot: "石和温泉", prefecture: "山梨県", icon: "♨️", mapQuery: "石和温泉 山梨県" },
+        { genre: "温泉", spot: "野沢温泉", prefecture: "長野県", icon: "♨️", mapQuery: "野沢温泉 長野県" },
         { genre: "温泉", spot: "下呂温泉", prefecture: "岐阜県", icon: "♨️", mapQuery: "下呂温泉 岐阜県" },
+        { genre: "温泉", spot: "熱海温泉", prefecture: "静岡県", icon: "♨️", mapQuery: "熱海温泉 静岡県" },
+        { genre: "温泉", spot: "蒲郡温泉", prefecture: "愛知県", icon: "♨️", mapQuery: "蒲郡温泉 愛知県" },
+        { genre: "温泉", spot: "湯の山温泉", prefecture: "三重県", icon: "♨️", mapQuery: "湯の山温泉 三重県" },
+        { genre: "温泉", spot: "おごと温泉", prefecture: "滋賀県", icon: "♨️", mapQuery: "おごと温泉 滋賀県" },
+        { genre: "温泉", spot: "嵐山温泉", prefecture: "京都府", icon: "♨️", mapQuery: "嵐山温泉 京都府" },
+        { genre: "温泉", spot: "箕面温泉", prefecture: "大阪府", icon: "♨️", mapQuery: "箕面温泉 大阪府" },
         { genre: "温泉", spot: "有馬温泉", prefecture: "兵庫県", icon: "♨️", mapQuery: "有馬温泉 兵庫県" },
+        { genre: "温泉", spot: "洞川温泉", prefecture: "奈良県", icon: "♨️", mapQuery: "洞川温泉 奈良県" },
+        { genre: "温泉", spot: "白浜温泉", prefecture: "和歌山県", icon: "♨️", mapQuery: "白浜温泉 和歌山県" },
+        { genre: "温泉", spot: "三朝温泉", prefecture: "鳥取県", icon: "♨️", mapQuery: "三朝温泉 鳥取県" },
+        { genre: "温泉", spot: "玉造温泉", prefecture: "島根県", icon: "♨️", mapQuery: "玉造温泉 島根県" },
+        { genre: "温泉", spot: "湯原温泉", prefecture: "岡山県", icon: "♨️", mapQuery: "湯原温泉 岡山県" },
+        { genre: "温泉", spot: "鞆の浦温泉", prefecture: "広島県", icon: "♨️", mapQuery: "鞆の浦温泉 広島県" },
+        { genre: "温泉", spot: "湯田温泉", prefecture: "山口県", icon: "♨️", mapQuery: "湯田温泉 山口県" },
+        { genre: "温泉", spot: "祖谷温泉", prefecture: "徳島県", icon: "♨️", mapQuery: "祖谷温泉 徳島県" },
+        { genre: "温泉", spot: "こんぴら温泉郷", prefecture: "香川県", icon: "♨️", mapQuery: "こんぴら温泉郷 香川県" },
         { genre: "温泉", spot: "道後温泉", prefecture: "愛媛県", icon: "♨️", mapQuery: "道後温泉 愛媛県" },
+        { genre: "温泉", spot: "あしずり温泉", prefecture: "高知県", icon: "♨️", mapQuery: "あしずり温泉 高知県" },
+        { genre: "温泉", spot: "二日市温泉", prefecture: "福岡県", icon: "♨️", mapQuery: "二日市温泉 福岡県" },
+        { genre: "温泉", spot: "嬉野温泉", prefecture: "佐賀県", icon: "♨️", mapQuery: "嬉野温泉 佐賀県" },
+        { genre: "温泉", spot: "雲仙温泉", prefecture: "長崎県", icon: "♨️", mapQuery: "雲仙温泉 長崎県" },
+        { genre: "温泉", spot: "黒川温泉", prefecture: "熊本県", icon: "♨️", mapQuery: "黒川温泉 熊本県" },
         { genre: "温泉", spot: "別府温泉", prefecture: "大分県", icon: "♨️", mapQuery: "別府温泉 大分県" },
+        { genre: "温泉", spot: "青島温泉", prefecture: "宮崎県", icon: "♨️", mapQuery: "青島温泉 宮崎県" },
         { genre: "温泉", spot: "指宿温泉", prefecture: "鹿児島県", icon: "♨️", mapQuery: "指宿温泉 鹿児島県" },
-
-        // 2. 百名道（絶景ドライブルート）
+        { genre: "温泉", spot: "瀬長島温泉", prefecture: "沖縄県", icon: "♨️", mapQuery: "瀬長島温泉 沖縄県" },
+        // 2. 名道（絶景ドライブルート厳選・30問）
         { genre: "名道", spot: "宗谷国道", prefecture: "北海道", icon: "🛣️", mapQuery: "宗谷国道 北海道" },
+        { genre: "名道", spot: "知床横断道路", prefecture: "北海道", icon: "🛣️", mapQuery: "知床横断道路 北海道" },
+        { genre: "名道", spot: "八甲田ゴールドライン", prefecture: "青森県", icon: "🛣️", mapQuery: "八甲田ゴールドライン 青森県" },
+        { genre: "名道", spot: "八幡平アスピーテライン", prefecture: "岩手県", icon: "🛣️", mapQuery: "八幡平アスピーテライン 岩手県" },
+        { genre: "名道", spot: "蔵王エコーライン", prefecture: "宮城県", icon: "🛣️", mapQuery: "蔵王エコーライン 宮城県" },
         { genre: "名道", spot: "磐梯吾妻スカイライン", prefecture: "福島県", icon: "🛣️", mapQuery: "磐梯吾妻スカイライン 福島県" },
         { genre: "名道", spot: "日光いろは坂", prefecture: "栃木県", icon: "🛣️", mapQuery: "日光いろは坂 栃木県" },
+        { genre: "名道", spot: "志賀草津高原ルート", prefecture: "群馬県", icon: "🛣️", mapQuery: "志賀草津高原ルート 群馬県" },
+        { genre: "名道", spot: "秩父往還", prefecture: "埼玉県", icon: "🛣️", mapQuery: "秩父往還 埼玉県" },
+        { genre: "名道", spot: "房総フラワーライン", prefecture: "千葉県", icon: "🛣️", mapQuery: "房総フラワーライン 千葉県" },
+        { genre: "名道", spot: "箱根ターンパイク", prefecture: "神奈川県", icon: "🛣️", mapQuery: "箱根ターンパイク 神奈川県" },
         { genre: "名道", spot: "ビーナスライン", prefecture: "長野県", icon: "🛣️", mapQuery: "ビーナスライン 長野県" },
+        { genre: "名道", spot: "白馬マジックアワーロード", prefecture: "長野県", icon: "🛣️", mapQuery: "白馬マジックアワーロード 長野県" },
         { genre: "名道", spot: "富士スバルライン", prefecture: "山梨県", icon: "🛣️", mapQuery: "富士スバルライン 山梨県" },
         { genre: "名道", spot: "千里浜なぎさドライブウェイ", prefecture: "石川県", icon: "🛣️", mapQuery: "千里浜なぎさドライブウェイ 石川県" },
+        { genre: "名道", spot: "三方五湖レインボーライン", prefecture: "福井県", icon: "🛣️", mapQuery: "三方五湖レインボーライン 福井県" },
+        { genre: "名道", spot: "せせらぎ街道", prefecture: "岐阜県", icon: "🛣️", mapQuery: "せせらぎ街道 岐阜県" },
+        { genre: "名道", spot: "伊豆スカイライン", prefecture: "静岡県", icon: "🛣️", mapQuery: "伊豆スカイライン 静岡県" },
         { genre: "名道", spot: "嵐山高雄パークウェイ", prefecture: "京都府", icon: "🛣️", mapQuery: "嵐山高雄パークウェイ 京都府" },
+        { genre: "名道", spot: "芦有ドライブウェイ", prefecture: "兵庫県", icon: "🛣️", mapQuery: "芦有ドライブウェイ 兵庫県" },
+        { genre: "名道", spot: "信貴生駒スカイライン", prefecture: "奈良県", icon: "🛣️", mapQuery: "信貴生駒スカイライン 奈良県" },
+        { genre: "名道", spot: "高野龍神スカイライン", prefecture: "和歌山県", icon: "🛣️", mapQuery: "高野龍神スカイライン 和歌山県" },
+        { genre: "名道", spot: "大山環状道路", prefecture: "鳥取県", icon: "🛣️", mapQuery: "大山環状道路 鳥取県" },
+        { genre: "名道", spot: "出雲日御碕ドライブコース", prefecture: "島根県", icon: "🛣️", mapQuery: "出雲日御碕ドライブコース 島根県" },
+        { genre: "名道", spot: "しまなみ海道", prefecture: "広島県", icon: "🛣️", mapQuery: "しまなみ海道 広島県" },
         { genre: "名道", spot: "角島大橋", prefecture: "山口県", icon: "🛣️", mapQuery: "角島大橋 山口県" },
+        { genre: "名道", spot: "鳴門スカイライン", prefecture: "徳島県", icon: "🛣️", mapQuery: "鳴門スカイライン 徳島県" },
+        { genre: "名道", spot: "四国カルスト公園線", prefecture: "愛媛県", icon: "🛣️", mapQuery: "四国カルスト公園線 愛媛県" },
+        { genre: "名道", spot: "横浪黒潮ライン", prefecture: "高知県", icon: "🛣️", mapQuery: "横浪黒潮ライン 高知県" },
         { genre: "名道", spot: "やまなみハイウェイ", prefecture: "大分県", icon: "🛣️", mapQuery: "やまなみハイウェイ 大分県" },
-        { genre: "名道", spot: "指宿スカイライン", prefecture: "鹿児島県", icon: "🛣️", mapQuery: "指宿スカイライン 鹿児島県" },
-
-        // 3. 観光名所・名勝
+        // 3. 名所（47都道府県完全網羅・47問）
         { genre: "名所", spot: "五稜郭", prefecture: "北海道", icon: "🏯", mapQuery: "五稜郭 北海道" },
+        { genre: "名所", spot: "弘前城", prefecture: "青森県", icon: "🏯", mapQuery: "弘前城 青森県" },
         { genre: "名所", spot: "中尊寺金色堂", prefecture: "岩手県", icon: "🏯", mapQuery: "中尊寺金色堂 岩手県" },
+        { genre: "名所", spot: "松島瑞巌寺", prefecture: "宮城県", icon: "🏯", mapQuery: "松島瑞巌寺 宮城県" },
+        { genre: "名所", spot: "角館武家屋敷", prefecture: "秋田県", icon: "🏯", mapQuery: "角館武家屋敷 秋田県" },
+        { genre: "名所", spot: "立石寺（山寺）", prefecture: "山形県", icon: "🏯", mapQuery: "立石寺（山寺） 山形県" },
+        { genre: "名所", spot: "鶴ヶ城", prefecture: "福島県", icon: "🏯", mapQuery: "鶴ヶ城 福島県" },
+        { genre: "名所", spot: "偕楽園", prefecture: "茨城県", icon: "🏯", mapQuery: "偕楽園 茨城県" },
         { genre: "名所", spot: "日光東照宮", prefecture: "栃木県", icon: "🏯", mapQuery: "日光東照宮 栃木県" },
-        { genre: "名所", spot: "白川郷", prefecture: "岐阜県", icon: "🏯", mapQuery: "白川郷 岐阜県" },
+        { genre: "名所", spot: "富岡製糸場", prefecture: "群馬県", icon: "🏯", mapQuery: "富岡製糸場 群馬県" },
+        { genre: "名所", spot: "時の鐘（川越）", prefecture: "埼玉県", icon: "🏯", mapQuery: "時の鐘（川越） 埼玉県" },
+        { genre: "名所", spot: "成田山新勝寺", prefecture: "千葉県", icon: "🏯", mapQuery: "成田山新勝寺 千葉県" },
+        { genre: "名所", spot: "浅草寺雷門", prefecture: "東京都", icon: "🏯", mapQuery: "浅草寺雷門 東京都" },
+        { genre: "名所", spot: "鎌倉大仏", prefecture: "神奈川県", icon: "🏯", mapQuery: "鎌倉大仏 神奈川県" },
+        { genre: "名所", spot: "清津峡渓谷トンネル", prefecture: "新潟県", icon: "🏯", mapQuery: "清津峡渓谷トンネル 新潟県" },
+        { genre: "名所", spot: "黒部ダム", prefecture: "富山県", icon: "🏯", mapQuery: "黒部ダム 富山県" },
         { genre: "名所", spot: "兼六園", prefecture: "石川県", icon: "🏯", mapQuery: "兼六園 石川県" },
+        { genre: "名所", spot: "東尋坊", prefecture: "福井県", icon: "🏯", mapQuery: "東尋坊 福井県" },
+        { genre: "名所", spot: "河口湖", prefecture: "山梨県", icon: "🏯", mapQuery: "河口湖 山梨県" },
+        { genre: "名所", spot: "松本城", prefecture: "長野県", icon: "🏯", mapQuery: "松本城 長野県" },
+        { genre: "名所", spot: "白川郷合掌造り", prefecture: "岐阜県", icon: "🏯", mapQuery: "白川郷合掌造り 岐阜県" },
+        { genre: "名所", spot: "三保松原", prefecture: "静岡県", icon: "🏯", mapQuery: "三保松原 静岡県" },
+        { genre: "名所", spot: "名古屋城", prefecture: "愛知県", icon: "🏯", mapQuery: "名古屋城 愛知県" },
+        { genre: "名所", spot: "伊勢神宮（内宮）", prefecture: "三重県", icon: "🏯", mapQuery: "伊勢神宮（内宮） 三重県" },
+        { genre: "名所", spot: "彦根城", prefecture: "滋賀県", icon: "🏯", mapQuery: "彦根城 滋賀県" },
         { genre: "名所", spot: "清水寺", prefecture: "京都府", icon: "🏯", mapQuery: "清水寺 京都府" },
+        { genre: "名所", spot: "大阪城", prefecture: "大阪府", icon: "🏯", mapQuery: "大阪城 大阪府" },
         { genre: "名所", spot: "姫路城", prefecture: "兵庫県", icon: "🏯", mapQuery: "姫路城 兵庫県" },
+        { genre: "名所", spot: "東大寺大仏殿", prefecture: "奈良県", icon: "🏯", mapQuery: "東大寺大仏殿 奈良県" },
+        { genre: "名所", spot: "熊野那智大社", prefecture: "和歌山県", icon: "🏯", mapQuery: "熊野那智大社 和歌山県" },
+        { genre: "名所", spot: "鳥取砂丘", prefecture: "鳥取県", icon: "🏯", mapQuery: "鳥取砂丘 鳥取県" },
         { genre: "名所", spot: "出雲大社", prefecture: "島根県", icon: "🏯", mapQuery: "出雲大社 島根県" },
+        { genre: "名所", spot: "倉敷美観地区", prefecture: "岡山県", icon: "🏯", mapQuery: "倉敷美観地区 岡山県" },
         { genre: "名所", spot: "厳島神社", prefecture: "広島県", icon: "🏯", mapQuery: "厳島神社 広島県" },
+        { genre: "名所", spot: "錦帯橋", prefecture: "山口県", icon: "🏯", mapQuery: "錦帯橋 山口県" },
+        { genre: "名所", spot: "鳴門の渦潮", prefecture: "徳島県", icon: "🏯", mapQuery: "鳴門の渦潮 徳島県" },
+        { genre: "名所", spot: "金刀比羅宮", prefecture: "香川県", icon: "🏯", mapQuery: "金刀比羅宮 香川県" },
+        { genre: "名所", spot: "松山城", prefecture: "愛媛県", icon: "🏯", mapQuery: "松山城 愛媛県" },
+        { genre: "名所", spot: "桂浜", prefecture: "高知県", icon: "🏯", mapQuery: "桂浜 高知県" },
+        { genre: "名所", spot: "太宰府天満宮", prefecture: "福岡県", icon: "🏯", mapQuery: "太宰府天満宮 福岡県" },
+        { genre: "名所", spot: "吉野ヶ里遺跡", prefecture: "佐賀県", icon: "🏯", mapQuery: "吉野ヶ里遺跡 佐賀県" },
+        { genre: "名所", spot: "グラバー園", prefecture: "長崎県", icon: "🏯", mapQuery: "グラバー園 長崎県" },
+        { genre: "名所", spot: "熊本城", prefecture: "熊本県", icon: "🏯", mapQuery: "熊本城 熊本県" },
+        { genre: "名所", spot: "宇佐神宮", prefecture: "大分県", icon: "🏯", mapQuery: "宇佐神宮 大分県" },
+        { genre: "名所", spot: "高千穂峡", prefecture: "宮崎県", icon: "🏯", mapQuery: "高千穂峡 宮崎県" },
+        { genre: "名所", spot: "桜島", prefecture: "鹿児島県", icon: "🏯", mapQuery: "桜島 鹿児島県" },
         { genre: "名所", spot: "首里城", prefecture: "沖縄県", icon: "🏯", mapQuery: "首里城 沖縄県" },
-
-        // 4. ご当地グルメ・名物お土産
+        // 4. グルメ（47都道府県完全網羅・47問）
         { genre: "グルメ", spot: "ジンギスカン", prefecture: "北海道", icon: "🍜", mapQuery: "ジンギスカン 北海道" },
+        { genre: "グルメ", spot: "せんべい汁", prefecture: "青森県", icon: "🍜", mapQuery: "せんべい汁 青森県" },
         { genre: "グルメ", spot: "わんこそば", prefecture: "岩手県", icon: "🍜", mapQuery: "わんこそば 岩手県" },
         { genre: "グルメ", spot: "牛たん焼き", prefecture: "宮城県", icon: "🍜", mapQuery: "牛たん焼き 宮城県" },
+        { genre: "グルメ", spot: "きりたんぽ鍋", prefecture: "秋田県", icon: "🍜", mapQuery: "きりたんぽ鍋 秋田県" },
+        { genre: "グルメ", spot: "米沢牛ステーキ", prefecture: "山形県", icon: "🍜", mapQuery: "米沢牛ステーキ 山形県" },
+        { genre: "グルメ", spot: "喜多方ラーメン", prefecture: "福島県", icon: "🍜", mapQuery: "喜多方ラーメン 福島県" },
+        { genre: "グルメ", spot: "水戸納豆", prefecture: "茨城県", icon: "🍜", mapQuery: "水戸納豆 茨城県" },
         { genre: "グルメ", spot: "宇都宮餃子", prefecture: "栃木県", icon: "🍜", mapQuery: "宇都宮餃子 栃木県" },
+        { genre: "グルメ", spot: "水沢うどん", prefecture: "群馬県", icon: "🍜", mapQuery: "水沢うどん 群馬県" },
+        { genre: "グルメ", spot: "草加煎餅", prefecture: "埼玉県", icon: "🍜", mapQuery: "草加煎餅 埼玉県" },
+        { genre: "グルメ", spot: "なめろう", prefecture: "千葉県", icon: "🍜", mapQuery: "なめろう 千葉県" },
+        { genre: "グルメ", spot: "深川めし", prefecture: "東京都", icon: "🍜", mapQuery: "深川めし 東京都" },
+        { genre: "グルメ", spot: "横須賀海軍カレー", prefecture: "神奈川県", icon: "🍜", mapQuery: "横須賀海軍カレー 神奈川県" },
+        { genre: "グルメ", spot: "へぎそば", prefecture: "新潟県", icon: "🍜", mapQuery: "へぎそば 新潟県" },
+        { genre: "グルメ", spot: "白えび丼", prefecture: "富山県", icon: "🍜", mapQuery: "白えび丼 富山県" },
+        { genre: "グルメ", spot: "治部煮", prefecture: "石川県", icon: "🍜", mapQuery: "治部煮 石川県" },
+        { genre: "グルメ", spot: "越前ガニ", prefecture: "福井県", icon: "🍜", mapQuery: "越前ガニ 福井県" },
+        { genre: "グルメ", spot: "ほうとう", prefecture: "山梨県", icon: "🍜", mapQuery: "ほうとう 山梨県" },
+        { genre: "グルメ", spot: "信州そば", prefecture: "長野県", icon: "🍜", mapQuery: "信州そば 長野県" },
+        { genre: "グルメ", spot: "飛騨牛にぎり", prefecture: "岐阜県", icon: "🍜", mapQuery: "飛騨牛にぎり 岐阜県" },
+        { genre: "グルメ", spot: "富士宮やきそば", prefecture: "静岡県", icon: "🍜", mapQuery: "富士宮やきそば 静岡県" },
         { genre: "グルメ", spot: "ひつまぶし", prefecture: "愛知県", icon: "🍜", mapQuery: "ひつまぶし 愛知県" },
+        { genre: "グルメ", spot: "松阪牛すき焼き", prefecture: "三重県", icon: "🍜", mapQuery: "松阪牛すき焼き 三重県" },
+        { genre: "グルメ", spot: "近江牛ステーキ", prefecture: "滋賀県", icon: "🍜", mapQuery: "近江牛ステーキ 滋賀県" },
+        { genre: "グルメ", spot: "湯豆腐", prefecture: "京都府", icon: "🍜", mapQuery: "湯豆腐 京都府" },
         { genre: "グルメ", spot: "たこ焼き", prefecture: "大阪府", icon: "🍜", mapQuery: "たこ焼き 大阪府" },
+        { genre: "グルメ", spot: "明石焼き", prefecture: "兵庫県", icon: "🍜", mapQuery: "明石焼き 兵庫県" },
+        { genre: "グルメ", spot: "柿の葉寿司", prefecture: "奈良県", icon: "🍜", mapQuery: "柿の葉寿司 奈良県" },
+        { genre: "グルメ", spot: "和歌山ラーメン", prefecture: "和歌山県", icon: "🍜", mapQuery: "和歌山ラーメン 和歌山県" },
+        { genre: "グルメ", spot: "松葉ガニ", prefecture: "鳥取県", icon: "🍜", mapQuery: "松葉ガニ 鳥取県" },
+        { genre: "グルメ", spot: "出雲そば", prefecture: "島根県", icon: "🍜", mapQuery: "出雲そば 島根県" },
+        { genre: "グルメ", spot: "蒜山焼きそば", prefecture: "岡山県", icon: "🍜", mapQuery: "蒜山焼きそば 岡山県" },
+        { genre: "グルメ", spot: "広島お好み焼き", prefecture: "広島県", icon: "🍜", mapQuery: "広島お好み焼き 広島県" },
+        { genre: "グルメ", spot: "瓦そば", prefecture: "山口県", icon: "🍜", mapQuery: "瓦そば 山口県" },
+        { genre: "グルメ", spot: "徳島ラーメン", prefecture: "徳島県", icon: "🍜", mapQuery: "徳島ラーメン 徳島県" },
         { genre: "グルメ", spot: "讃岐うどん", prefecture: "香川県", icon: "🍜", mapQuery: "讃岐うどん 香川県" },
+        { genre: "グルメ", spot: "宇和島鯛めし", prefecture: "愛媛県", icon: "🍜", mapQuery: "宇和島鯛めし 愛媛県" },
+        { genre: "グルメ", spot: "カツオのたたき", prefecture: "高知県", icon: "🍜", mapQuery: "カツオのたたき 高知県" },
         { genre: "グルメ", spot: "辛子明太子", prefecture: "福岡県", icon: "🍜", mapQuery: "辛子明太子 福岡県" },
+        { genre: "グルメ", spot: "呼子のイカ", prefecture: "佐賀県", icon: "🍜", mapQuery: "呼子のイカ 佐賀県" },
+        { genre: "グルメ", spot: "長崎ちゃんぽん", prefecture: "長崎県", icon: "🍜", mapQuery: "長崎ちゃんぽん 長崎県" },
+        { genre: "グルメ", spot: "馬刺し", prefecture: "熊本県", icon: "🍜", mapQuery: "馬刺し 熊本県" },
+        { genre: "グルメ", spot: "中津からあげ", prefecture: "大分県", icon: "🍜", mapQuery: "中津からあげ 大分県" },
         { genre: "グルメ", spot: "チキン南蛮", prefecture: "宮崎県", icon: "🍜", mapQuery: "チキン南蛮 宮崎県" },
-        { genre: "グルメ", spot: "ソーキそば", prefecture: "沖縄県", icon: "🍜", mapQuery: "ソーキそば 沖縄県" }
+        { genre: "グルメ", spot: "黒豚しゃぶしゃぶ", prefecture: "鹿児島県", icon: "🍜", mapQuery: "黒豚しゃぶしゃぶ 鹿児島県" },
+        { genre: "グルメ", spot: "ソーキそば", prefecture: "沖縄県", icon: "🍜", mapQuery: "ソーキそば 沖縄県" },
       ];
 
       // 47都道府県マスター
@@ -776,7 +904,7 @@
       ];
 
       // 設定定数
-      const TOTAL_QUESTIONS = 10;
+      const TOTAL_QUESTIONS = 20;
       const QUESTION_TIME_LIMIT_SEC = 8;
       const CORRECT_DELAY_MS = 600;
       const WRONG_DELAY_MS = 900;
@@ -921,7 +1049,7 @@
         return copy;
       }
 
-      // 出題キュー生成（層化サンプリング / 各ジャンル2〜3問保証）
+      // 出題キュー生成（完全均等層化サンプリング / 4ジャンル×各5問＝計20問）
       function buildStratifiedQueue() {
         const genres = ["温泉", "名道", "名所", "グルメ"];
         const byGenre = {};
@@ -931,19 +1059,14 @@
 
         const selectedItems = [];
 
-        // 1. 各ジャンルから最低2問抽出 (計8問)
+        // 4ジャンルから各5問ずつ均等抽出 (4ジャンル × 5問 = 計20問)
         genres.forEach(g => {
-          selectedItems.push(byGenre[g].pop());
-          selectedItems.push(byGenre[g].pop());
+          for (let i = 0; i < 5; i++) {
+            selectedItems.push(byGenre[g].pop());
+          }
         });
 
-        // 2. 残り2問は重複しない2ジャンルから各1問抽出 (計10問)
-        const bonusGenres = shuffleArray(genres).slice(0, 2);
-        bonusGenres.forEach(g => {
-          selectedItems.push(byGenre[g].pop());
-        });
-
-        // 3. 全体シャッフル
+        // 全体シャッフル
         return shuffleArray(selectedItems);
       }
 
@@ -1136,12 +1259,12 @@
         if (timerAnimId) cancelAnimationFrame(timerAnimId);
         playSound('finish');
 
-        // 称号判定
+        // 称号判定（20問基準）
         let rankText = "旅支度中 🎒";
-        if (correctCount === 10) rankText = "全国観光大使 🏆";
-        else if (correctCount >= 8) rankText = "ご当地マスター 🗾";
-        else if (correctCount >= 6) rankText = "一人前の旅人 🧳";
-        else if (correctCount >= 4) rankText = "見習いナビゲーター 🧭";
+        if (correctCount === 20) rankText = "全国観光大使 🏆";
+        else if (correctCount >= 16) rankText = "ご当地マスター 🗾";
+        else if (correctCount >= 12) rankText = "一人前の旅人 🧳";
+        else if (correctCount >= 8) rankText = "見習いナビゲーター 🧭";
 
         resultRank.textContent = rankText;
         resultCorrectNum.textContent = correctCount;
