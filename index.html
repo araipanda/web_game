@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>ずんだWebゲームズ - 無料ブラウザミニゲーム集</title>
+  <style>
+    :root {
+      --primary: #5a9e32;
+      --primary-dark: #3e7320;
+      --primary-light: #e8f5df;
+      --accent: #f97316;
+      --bg: #f6f8f5;
+      --card-bg: #ffffff;
+      --text: #2d3748;
+      --text-muted: #718096;
+      --radius: 18px;
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      --shadow-hover: 0 10px 24px rgba(90, 158, 50, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Meiryo", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ヘッダー */
+    header {
+      background: linear-gradient(135deg, #5a9e32 0%, #7ec64b 100%);
+      color: #fff;
+      padding: 32px 20px 24px;
+      text-align: center;
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      box-shadow: 0 4px 20px rgba(90, 158, 50, 0.25);
+    }
+
+    .header-content {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .site-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(4px);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      opacity: 0.95;
+      font-weight: 500;
+    }
+
+    /* メインコンテナ */
+    main {
+      flex: 1;
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .game-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ゲームカード */
+    .game-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .game-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .game-banner {
+      height: 140px;
+      position: relative;
+      background: linear-gradient(135deg, #70c5ce 0%, #87d7b8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .banner-graphic {
+      font-size: 64px;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+      animation: float 2.5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(3deg); }
+    }
+
+    .card-badges {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .badge {
+      background: #fff;
+      color: var(--primary-dark);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    }
+
+    .badge-recommend {
+      background: #f59e0b;
+      color: #fff;
+    }
+
+    .badge-coming {
+      background: #94a3b8;
+      color: #fff;
+    }
+
+    .game-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .game-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #1a202c;
+    }
+
+    .game-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .game-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .play-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #5a9e32 0%, #438a1e 100%);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      padding: 14px;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(67, 138, 30, 0.3);
+      transition: all 0.15s ease;
+      cursor: pointer;
+      border: none;
+      width: 100%;
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    .play-btn:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 6px rgba(67, 138, 30, 0.3);
+    }
+
+    .play-btn.disabled {
+      background: #e2e8f0;
+      color: #94a3b8;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    /* Coming Soonカード */
+    .game-card.coming-soon .game-banner {
+      background: linear-gradient(135deg, #cbd5e1 0%, #e2e8f0 100%);
+    }
+
+    .game-card.coming-soon .banner-graphic {
+      font-size: 52px;
+      opacity: 0.6;
+      animation: none;
+    }
+
+    /* アピールポイント */
+    .features {
+      margin-top: 36px;
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      text-align: center;
+    }
+
+    .feature-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .feature-icon {
+      font-size: 28px;
+    }
+
+    .feature-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .feature-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* フッター */
+    footer {
+      background: #fff;
+      border-top: 1px solid #edf2f7;
+      text-align: center;
+      padding: 20px 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: auto;
+    }
+
+    @media (max-width: 480px) {
+      header {
+        padding: 24px 16px 20px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+      .game-banner {
+        height: 120px;
+      }
+      .banner-graphic {
+        font-size: 52px;
+      }
+      .features-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        text-align: left;
+      }
+      .feature-item {
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+      }
+      .feature-icon {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <span class="site-badge">🌱 HTML5 Mini Games</span>
+      <h1>ずんだWebゲームズ</h1>
+      <p class="subtitle">スマホでサクッと遊べる無料ミニゲーム集なのだ！</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="section-title">
+      <span>🎮</span> 遊べるゲーム一覧
+    </div>
+
+    <div class="game-grid">
+      <!-- ゲーム1: 飛び立て！ずんだもん -->
+      <article class="game-card">
+        <div class="game-banner">
+          <div class="banner-graphic">🌱</div>
+          <div class="card-badges">
+            <span class="badge badge-recommend">⭐ おすすめ</span>
+            <span class="badge">NEW</span>
+          </div>
+        </div>
+        <div class="game-body">
+          <div class="game-header">
+            <h2 class="game-title">飛び立て！ずんだもん</h2>
+          </div>
+          <p class="game-desc">
+            画面をタップしてふわりと跳ねて、上下から伸びる枝豆サヤをくぐり抜けよう！片手操作で手軽に遊べるタイミングアクションゲームなのだ。
+          </p>
+          <div class="game-tags">
+            <span class="tag">#片手タップ</span>
+            <span class="tag">#アクション</span>
+            <span class="tag">#BGM・効果音</span>
+            <span class="tag">#スコアアタック</span>
+          </div>
+          <a href="flappy-zunda.html" class="play-btn">今すぐあそぶ！ 🎮</a>
+        </div>
+      </article>
+
+      <!-- ゲーム2: 次回作予告 -->
+      <article class="game-card coming-soon">
+        <div class="game-banner">
+          <div class="banner-graphic">🍵</div>
+          <div class="card-badges">
+            <span class="badge badge-coming">次回作</span>
+          </div>
+        </div>
+        <div class="game-body">
+          <div class="game-header">
+            <h2 class="game-title">次回作準備中...</h2>
+          </div>
+          <p class="game-desc">
+            スワイプ合体パズルやスライドアクションなど、新しいミニゲームを鋭意企画・開発中なのだ！公開をお楽しみに。
+          </p>
+          <div class="game-tags">
+            <span class="tag">#企画中</span>
+            <span class="tag">#近日登場</span>
+          </div>
+          <button class="play-btn disabled" disabled>お楽しみに！ 🍵</button>
+        </div>
+      </article>
+    </div>
+
+    <!-- 特徴紹介 -->
+    <div class="features">
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-icon">⚡</div>
+          <div>
+            <div class="feature-title">インストール不要</div>
+            <div class="feature-desc">ブラウザで開くだけで即起動</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📱</div>
+          <div>
+            <div class="feature-title">スマホ片手最適化</div>
+            <div class="feature-desc">誤タップ・拡大防止で快適</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🔒</div>
+          <div>
+            <div class="feature-title">完全無料・安心</div>
+            <div class="feature-desc">広告・課金・個人情報収集ゼロ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2026 araipanda ｜ Hosted on GitHub Pages</p>
+  </footer>
+</body>
+</html>
