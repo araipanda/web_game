@@ -466,9 +466,16 @@
 
     .result-actions {
       display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .result-sub-actions {
+      display: flex;
       gap: 10px;
       width: 100%;
-      max-width: 420px;
     }
 
     .secondary-btn {
@@ -647,6 +654,9 @@
       </div>
 
       <button id="start-btn" class="primary-btn">クイズを始める！</button>
+      <button id="last-result-btn" class="secondary-btn" style="display: none; width: 100%; max-width: 320px; font-size: 14px; padding: 12px 18px;">
+        📜 前回の結果を見る <span id="last-result-badge" style="margin-left: 6px; font-size: 12px; color: var(--primary); font-weight: 700;"></span>
+      </button>
     </section>
 
     <!-- 2. プレイ画面 -->
@@ -684,6 +694,7 @@
     <!-- 3. リザルト画面 -->
     <section id="result-screen" class="screen">
       <div class="result-summary-card">
+        <div id="result-timestamp" style="font-size: 12px; color: var(--text-sub); display: none;"></div>
         <div id="result-rank" class="result-rank-title">全国観光大使 🏆</div>
         <div class="result-score-large">
           <span id="result-correct-num">18</span> <span>/ 20 問</span>
@@ -694,8 +705,11 @@
       </div>
 
       <div class="result-actions">
-        <button id="retry-btn" class="primary-btn" style="flex: 1; padding: 12px 18px; font-size: 15px;">もう一度挑戦！</button>
-        <a href="./index.html" class="secondary-btn" style="flex: 1;">ポータルへ</a>
+        <button id="retry-btn" class="primary-btn" style="width: 100%; max-width: none; padding: 12px 18px; font-size: 15px;">もう一度挑戦！</button>
+        <div class="result-sub-actions">
+          <button id="back-start-btn" class="secondary-btn" style="flex: 1;">スタートへ</button>
+          <a href="./index.html" class="secondary-btn" style="flex: 1;">ポータルへ</a>
+        </div>
       </div>
 
       <div class="review-section">
@@ -1002,7 +1016,10 @@
 
       const soundBtn = document.getElementById('sound-btn');
       const startBtn = document.getElementById('start-btn');
+      const lastResultBtn = document.getElementById('last-result-btn');
+      const lastResultBadge = document.getElementById('last-result-badge');
       const retryBtn = document.getElementById('retry-btn');
+      const backStartBtn = document.getElementById('back-start-btn');
 
       const questionBadge = document.getElementById('question-badge');
       const correctCountEl = document.getElementById('correct-count');
@@ -1015,10 +1032,68 @@
       const choicesContainer = document.getElementById('choices-container');
       const choiceButtons = Array.from(document.querySelectorAll('.choice-btn'));
 
+      const resultTimestamp = document.getElementById('result-timestamp');
       const resultRank = document.getElementById('result-rank');
       const resultCorrectNum = document.getElementById('result-correct-num');
       const resultAccuracy = document.getElementById('result-accuracy');
       const reviewList = document.getElementById('review-list');
+
+      // LocalStorageキー
+      const STORAGE_KEY_LAST_RESULT = 'travel_quiz_last_result';
+
+      // 前回の結果（LocalStorage）関連ヘルパー
+      function saveLastResult(score, total, accuracy, rank, results) {
+        try {
+          const now = new Date();
+          const playedAt = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+          const data = {
+            playedAt: playedAt,
+            score: score,
+            total: total,
+            accuracy: accuracy,
+            rank: rank,
+            results: results
+          };
+          localStorage.setItem(STORAGE_KEY_LAST_RESULT, JSON.stringify(data));
+        } catch (e) {
+          console.error("LocalStorage save error:", e);
+        }
+      }
+
+      function loadLastResult() {
+        try {
+          const json = localStorage.getItem(STORAGE_KEY_LAST_RESULT);
+          return json ? JSON.parse(json) : null;
+        } catch (e) {
+          console.error("LocalStorage load error:", e);
+          return null;
+        }
+      }
+
+      function updateLastResultBtn() {
+        const last = loadLastResult();
+        if (last && Array.isArray(last.results) && last.results.length > 0) {
+          lastResultBadge.textContent = `(${last.score}/${last.total}問)`;
+          lastResultBtn.style.display = 'inline-flex';
+        } else {
+          lastResultBtn.style.display = 'none';
+        }
+      }
+
+      function showLastResult() {
+        const last = loadLastResult();
+        if (!last) return;
+
+        resultTimestamp.textContent = `📅 前回プレイ: ${last.playedAt}`;
+        resultTimestamp.style.display = 'block';
+        resultRank.textContent = last.rank;
+        resultCorrectNum.textContent = last.score;
+        resultAccuracy.textContent = `${last.accuracy}%`;
+
+        renderReviewList(last.results);
+        retryBtn.textContent = 'クイズを始める！';
+        showScreen(screenResult);
+      }
 
       // サウンドボタン状態更新
       function updateSoundBtn() {
@@ -1037,6 +1112,7 @@
       function showScreen(targetScreen) {
         [screenStart, screenPlay, screenResult].forEach(s => s.classList.remove('active'));
         targetScreen.classList.add('active');
+        targetScreen.scrollTop = 0;
       }
 
       // シャッフルヘルパー (Fisher-Yates)
@@ -1266,21 +1342,31 @@
         else if (correctCount >= 12) rankText = "一人前の旅人 🧳";
         else if (correctCount >= 8) rankText = "見習いナビゲーター 🧭";
 
+        const accuracy = Math.round((correctCount / TOTAL_QUESTIONS) * 100);
+
+        resultTimestamp.textContent = '';
+        resultTimestamp.style.display = 'none';
         resultRank.textContent = rankText;
         resultCorrectNum.textContent = correctCount;
-        resultAccuracy.textContent = `${Math.round((correctCount / TOTAL_QUESTIONS) * 100)}%`;
+        resultAccuracy.textContent = `${accuracy}%`;
 
         // 答え合わせリスト構築
-        renderReviewList();
+        renderReviewList(resultsLog);
 
+        // 前回結果としてLocalStorageに保存
+        saveLastResult(correctCount, TOTAL_QUESTIONS, accuracy, rankText, resultsLog);
+        updateLastResultBtn();
+
+        retryBtn.textContent = 'もう一度挑戦！';
         showScreen(screenResult);
       }
 
       // 答え合わせ一覧の生成
-      function renderReviewList() {
+      function renderReviewList(items) {
         reviewList.innerHTML = '';
+        const list = items || resultsLog;
 
-        resultsLog.forEach((item, index) => {
+        list.forEach((item, index) => {
           const card = document.createElement('div');
           card.className = `review-card ${item.isCorrect ? 'correct-item' : 'wrong-item'}`;
 
@@ -1326,6 +1412,14 @@
       // イベントリスナー登録
       startBtn.addEventListener('click', startGame);
       retryBtn.addEventListener('click', startGame);
+      lastResultBtn.addEventListener('click', showLastResult);
+      backStartBtn.addEventListener('click', () => {
+        showScreen(screenStart);
+        updateLastResultBtn();
+      });
+
+      // 起動時に前回の結果ボタンの表示状態を更新
+      updateLastResultBtn();
 
     })();
   </script>
