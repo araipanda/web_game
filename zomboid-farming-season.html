@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>作付けベストシート</title>
+<style>
+:root {
+  --bg: #f6f5f1; --surface: #ffffff; --surface-2: #efede6; --text: #1f2421; --muted: #6a716b;
+  --line: #dcd9cf; --accent: #2f7d4f; --accent-ink: #ffffff; --accent-soft: #dcefe3;
+  --best: #d9482b; --best-ink: #ffffff; --range: #f2b36b; --range-ink: #4a2b05;
+  --green: #3fa34d; --yellow: #e2b93b; --shadow: 0 1px 2px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171a18; --surface: #212623; --surface-2: #2a302c; --text: #e9ece8; --muted: #9aa39c;
+    --line: #394039; --accent: #5cc58a; --accent-ink: #0f2a1a; --accent-soft: #23402f;
+    --best: #ef6b4d; --best-ink: #1a0a05; --range: #c98a43; --range-ink: #1f1204;
+    --green: #5cc58a; --yellow: #e6c35a; --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171a18; --surface: #212623; --surface-2: #2a302c; --text: #e9ece8; --muted: #9aa39c;
+  --line: #394039; --accent: #5cc58a; --accent-ink: #0f2a1a; --accent-soft: #23402f;
+  --best: #ef6b4d; --best-ink: #1a0a05; --range: #c98a43; --range-ink: #1f1204;
+  --green: #5cc58a; --yellow: #e6c35a; --shadow: none;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", Meiryo, sans-serif;
+}
+.wrap { max-width: 1000px; margin: 0 auto; padding: 20px 16px 48px; }
+header h1 { margin: 0 0 4px; font-size: 22px; letter-spacing: .02em; }
+header p { margin: 0; color: var(--muted); font-size: 13px; }
+
+.panel {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px; margin: 16px 0; box-shadow: var(--shadow);
+}
+.panel h2 { margin: 0 0 8px; font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .06em; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  appearance: none; border: 1px solid var(--line); background: var(--surface-2); color: var(--text);
+  border-radius: 999px; padding: 7px 14px; font: inherit; font-size: 14px; cursor: pointer; min-height: 38px;
+}
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.chip.now::after { content: "・今月"; font-size: 11px; opacity: .8; }
+.chip:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.controls { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 12px; }
+input[type="search"], select {
+  width: 100%; min-height: 40px; padding: 8px 12px; font: inherit; font-size: 14px; color: var(--text);
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px;
+}
+@media (max-width: 560px) { .controls { grid-template-columns: 1fr; } }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--muted); margin-top: 12px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+.sw.best { background: var(--best); } .sw.range { background: var(--range); }
+.sw.green { background: var(--green); } .sw.yellow { background: var(--yellow); }
+
+.summary { margin: 4px 2px 10px; font-size: 14px; color: var(--muted); }
+.summary strong { color: var(--text); }
+
+.list { display: flex; flex-direction: column; gap: 8px; }
+.row {
+  display: grid; align-items: center; gap: 10px 14px;
+  grid-template-columns: minmax(170px, 1.3fr) 72px minmax(270px, 2.2fr) minmax(110px, 1fr);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 10px 14px 10px 12px; box-shadow: var(--shadow); border-left-width: 5px;
+}
+.row[data-mark="green"] { border-left-color: var(--green); }
+.row[data-mark="yellow"] { border-left-color: var(--yellow); }
+.name { display: flex; flex-direction: column; min-width: 0; }
+.name b { font-size: 16px; font-weight: 650; overflow-wrap: anywhere; }
+.name small { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.days { justify-self: start; }
+.pill {
+  display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--surface-2);
+  border: 1px solid var(--line); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.pill.none { color: var(--muted); }
+.strip { display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px; }
+.m {
+  text-align: center; font-size: 12px; line-height: 26px; height: 26px; border-radius: 6px;
+  background: var(--surface-2); color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.m.best { background: var(--best); color: var(--best-ink); font-weight: 700; }
+.m.range { background: var(--range); color: var(--range-ink); font-weight: 600; }
+.m.sel { box-shadow: 0 0 0 2px var(--accent); }
+.special { font-size: 13px; color: var(--text); overflow-wrap: anywhere; }
+.special:empty::before { content: "—"; color: var(--muted); }
+
+.section-title { margin: 22px 2px 8px; font-size: 13px; color: var(--muted); font-weight: 600; letter-spacing: .06em; }
+.row.memo { grid-template-columns: minmax(170px, 1.3fr) minmax(110px, 2fr); }
+.note { margin-top: 14px; font-size: 13px; color: var(--muted); }
+.empty { text-align: center; padding: 36px 8px; color: var(--muted); background: var(--surface); border: 1px dashed var(--line); border-radius: 10px; }
+
+@media (max-width: 760px) {
+  .row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "name days" "strip strip" "special special";
+  }
+  .row .name { grid-area: name; } .row .days { grid-area: days; justify-self: end; }
+  .row .strip { grid-area: strip; } .row .special { grid-area: special; }
+  .row.memo { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Zomboid 作付けベストシート</h1>
+    <p>月で絞り込み、植える時期と収穫までの日数をひと目で確認。元シートは2〜10月のみ記載です。</p>
+  </header>
+
+  <section class="panel" aria-label="絞り込み">
+    <h2>植える月で絞り込み(複数選択可)</h2>
+    <div class="chips" id="chips"></div>
+    <div class="controls">
+      <input type="search" id="q" placeholder="名前・特殊用途で検索(例: 瓶詰、小麦、トマト)" aria-label="検索">
+      <select id="sort" aria-label="並べ替え">
+        <option value="month">適期の早い順</option>
+        <option value="daysAsc">栽培日数が短い順</option>
+        <option value="daysDesc">栽培日数が長い順</option>
+        <option value="name">名前順</option>
+        <option value="orig">元シートの順</option>
+      </select>
+    </div>
+    <div class="legend">
+      <span><i class="sw best"></i>赤 = ベストな月</span>
+      <span><i class="sw range"></i>橙 = 植え付け可能な期間</span>
+      <span><i class="sw green"></i>左端の緑・黄 = 元シートの名前欄の色分け</span>
+    </div>
+  </section>
+
+  <div class="summary" id="summary" aria-live="polite"></div>
+  <div class="list" id="list"></div>
+  <div id="memo"></div>
+  <p class="note" id="note"></p>
+</div>
+
+<script>
+const DATA = [{"id": 2, "en": "barlay", "jp": "オオムギ", "days": 30, "special": "小麦粉", "mark": "green", "months": {"8": "range", "9": "best"}}, {"id": 3, "en": "basil", "jp": "バジル", "days": 60, "special": "", "mark": "", "months": {"3": "best", "4": "range", "5": "range"}}, {"id": 4, "en": "bell pepper", "jp": "ピーマン", "days": 60, "special": "瓶詰", "mark": "yellow", "months": {"4": "range", "5": "best", "6": "range"}}, {"id": 5, "en": "cauliflower", "jp": "カリフラワー", "days": 60, "special": "", "mark": "", "months": {"2": "range", "3": "best", "4": "range"}}, {"id": 6, "en": "chamomile", "jp": "カモミール", "days": 60, "special": "", "mark": "", "months": {"3": "range", "4": "best", "5": "range"}}, {"id": 7, "en": "chives", "jp": "エゾネギ", "days": 60, "special": "", "mark": "", "months": {"3": "range", "4": "best", "5": "range", "6": "range", "7": "range", "8": "range"}}, {"id": 8, "en": "cilantro", "jp": "コリアンダー", "days": 60, "special": "", "mark": "", "months": {"3": "range", "4": "best", "5": "range"}}, {"id": 9, "en": "corn", "jp": "トウモロコシ", "days": 90, "special": "", "mark": "green", "months": {"3": "range", "4": "best", "5": "range"}}, {"id": 10, "en": "cucumber", "jp": "キュウリ", "days": 90, "special": "", "mark": "", "months": {"3": "range", "4": "best", "5": "range"}}, {"id": 11, "en": "flax", "jp": "アマ", "days": 108, "special": "植物油、手縫い糸", "mark": "green", "months": {"8": "range", "9": "best"}}, {"id": 12, "en": "garlic", "jp": "ニンニク", "days": 240, "special": "", "mark": "", "months": {"7": "range", "8": "best", "9": "range"}}, {"id": 13, "en": "green peas", "jp": "グリンピース", "days": 60, "special": "", "mark": "", "months": {"2": "range", "3": "best", "4": "range"}}, {"id": 14, "en": "habanero", "jp": "ハバネロ", "days": 60, "special": "", "mark": "", "months": {"4": "range", "5": "best", "6": "range"}}, {"id": 15, "en": "hemp", "jp": "ヘンプ", "days": 240, "special": "植物油、麻袋", "mark": "green", "months": {"8": "range", "9": "best"}}, {"id": 16, "en": "hops", "jp": "ホップ", "days": 240, "special": "", "mark": "", "months": {"8": "range", "9": "best"}}, {"id": 17, "en": "jalapeno", "jp": "ハラペーニョ", "days": 60, "special": "", "mark": "", "months": {"4": "range", "5": "best", "6": "range"}}, {"id": 18, "en": "kale", "jp": "ケール", "days": 60, "special": "", "mark": "", "months": {"2": "range", "3": "best", "4": "range", "5": "range", "6": "range", "7": "best", "8": "range"}}, {"id": 19, "en": "lavender", "jp": "ラベンダー", "days": 60, "special": "", "mark": "", "months": {"3": "range", "4": "best", "5": "range"}}, {"id": 20, "en": "leek", "jp": "リーキ", "days": 150, "special": "瓶詰", "mark": "yellow", "months": {"3": "range", "4": "range", "5": "range", "6": "range", "7": "range", "8": "range", "9": "range"}}, {"id": 21, "en": "lemongrass", "jp": "レモングラス", "days": 60, "special": "対食中毒", "mark": "", "months": {"3": "range", "4": "range", "5": "range", "6": "range", "7": "range", "8": "range", "9": "range"}}, {"id": 22, "en": "lettuce", "jp": "レタス", "days": 60, "special": "", "mark": "", "months": {"2": "range", "3": "best", "4": "range", "7": "best", "8": "range", "9": "range"}}, {"id": 23, "en": "marigold", "jp": "マリーゴールド", "days": 60, "special": "", "mark": "", "months": {"3": "range", "4": "best", "5": "range"}}, {"id": 24, "en": "mint", "jp": "ミント", "days": 60, "special": "", "mark": "", "months": {"2": "range", "3": "best", "4": "range"}}, {"id": 25, "en": "onions", "jp": "タマネギ", "days": 90, "special": "", "mark": "", "months": {"2": "best", "3": "range"}}, {"id": 26, "en": "oregano", "jp": "オレガノ", "days": 60, "special": "", "mark": "", "months": {"2": "range", "3": "best", "4": "range"}}, {"id": 27, "en": "parsley", "jp": "パセリ", "days": 60, "special": "", "mark": "", "months": {"2": "range", "3": "best", "4": "range"}}, {"id": 28, "en": "poppies", "jp": "ポピー", "days": 60, "special": "", "mark": "", "months": {"3": "range", "4": "best", "5": "range"}}, {"id": 30, "en": "pumpkin", "jp": "かぼちゃ", "days": 90, "special": "", "mark": "", "months": {"3": "range", "4": "best", "5": "range"}}, {"id": 31, "en": "rosemary", "jp": "ローズマリー", "days": 180, "special": "", "mark": "", "months": {"3": "range", "4": "range", "5": "range", "6": "range", "7": "range", "8": "range", "9": "range"}}, {"id": 32, "en": "roses", "jp": "バラ", "days": 60, "special": "", "mark": "", "months": {"3": "range", "4": "best", "5": "range"}}, {"id": 33, "en": "rye", "jp": "ライムギ", "days": 108, "special": "", "mark": "green", "months": {"8": "range", "9": "best", "10": "range"}}, {"id": 34, "en": "sage", "jp": "セージ", "days": 90, "special": "", "mark": "", "months": {"2": "range", "3": "best", "4": "range"}}, {"id": 35, "en": "soybeans", "jp": "ダイズ", "days": 90, "special": "", "mark": "", "months": {"3": "range", "4": "best", "5": "range"}}, {"id": 36, "en": "spinach", "jp": "ホウレンソウ", "days": 60, "special": "", "mark": "", "months": {"2": "range", "3": "best", "4": "range", "5": "range", "6": "best", "7": "range"}}, {"id": 37, "en": "strawberry", "jp": "イチゴ", "days": 90, "special": "", "mark": "yellow", "months": {"2": "range", "3": "best", "4": "range"}}, {"id": 38, "en": "sugar beet", "jp": "テンサイ", "days": 60, "special": "", "mark": "", "months": {"2": "range", "3": "best", "4": "range", "5": "range", "6": "best", "7": "range"}}, {"id": 39, "en": "sunflower", "jp": "ひまわり", "days": 90, "special": "植物油", "mark": "yellow", "months": {"3": "range", "4": "best", "5": "range"}}, {"id": 40, "en": "sweet potettoes", "jp": "サツマイモ", "days": 90, "special": "", "mark": "", "months": {"5": "range", "6": "best", "7": "range"}}, {"id": 41, "en": "thyme", "jp": "タイム", "days": 60, "special": "", "mark": "", "months": {"2": "range", "3": "range", "4": "best"}}, {"id": 42, "en": "tobacco", "jp": "タバコの葉", "days": 180, "special": "タバコ", "mark": "", "months": {"3": "range", "4": "best", "5": "range", "6": "range", "7": "range"}}, {"id": 43, "en": "turninp", "jp": "カブ", "days": 60, "special": "", "mark": "", "months": {"5": "range", "6": "best", "7": "range", "8": "range", "9": "best", "10": "range"}}, {"id": 44, "en": "watermelon", "jp": "スイカ", "days": 90, "special": "", "mark": "", "months": {"3": "range", "4": "best", "5": "range"}}, {"id": 45, "en": "winter wheat", "jp": "冬コムギ", "days": 108, "special": "小麦粉", "mark": "green", "months": {"8": "range", "9": "best", "10": "range"}}, {"id": 46, "en": "zucchini", "jp": "ズッキーニ", "days": 90, "special": "", "mark": "", "months": {"3": "range", "4": "best", "5": "range"}}, {"id": 47, "en": "", "jp": "キャベツ", "days": 60, "special": "瓶詰", "mark": "yellow", "months": {"2": "range", "3": "best", "4": "range", "5": "best", "6": "range", "7": "range"}}, {"id": 48, "en": "", "jp": "ジャガイモ", "days": 90, "special": "瓶詰", "mark": "yellow", "months": {"2": "range", "3": "best", "4": "range"}}, {"id": 49, "en": "", "jp": "トマト", "days": 90, "special": "瓶詰", "mark": "yellow", "months": {"4": "range", "5": "best", "6": "range"}}, {"id": 50, "en": "", "jp": "ニンジン", "days": 90, "special": "瓶詰", "mark": "yellow", "months": {"2": "best", "3": "range", "4": "range", "5": "range", "6": "best", "7": "range"}}, {"id": 51, "en": "", "jp": "ハツカダイコン", "days": 30, "special": "瓶詰", "mark": "yellow", "months": {"2": "range", "3": "best", "4": "range", "5": "range", "6": "range", "7": "best", "8": "range"}}, {"id": 52, "en": "", "jp": "ブロッコリー", "days": 60, "special": "瓶詰", "mark": "yellow", "months": {"2": "range", "3": "best", "4": "range", "5": "range", "6": "best", "7": "range"}}, {"id": 53, "en": "", "jp": "なす", "days": null, "special": "瓶詰", "mark": "yellow", "months": {}}, {"id": 55, "en": "", "jp": "ローズヒップ", "days": null, "special": "湿布（対傷", "mark": "", "months": {}}, {"id": 56, "en": "plantain", "jp": "オオバコ", "days": null, "special": "湿布（対傷", "mark": "", "months": {}}, {"id": 57, "en": "Wild Garlic", "jp": "コムギワラギク", "days": null, "special": "湿布（対創傷感染", "mark": "", "months": {}}, {"id": 58, "en": "Comfrey", "jp": "コンフリー", "days": null, "special": "湿布（隊骨折", "mark": "", "months": {}}, {"id": 59, "en": "", "jp": "マロウ", "days": null, "special": "対風", "mark": "", "months": {}}];
+const MONTHS = [2,3,4,5,6,7,8,9,10];
+const nowMonth = new Date().getMonth() + 1;
+const sel = new Set();
+let query = "", sortKey = "month";
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const hasMonths = (it) => Object.keys(it.months).length > 0;
+const isMemo = (it) => it.days == null && !hasMonths(it);
+const firstMonth = (it) => hasMonths(it) ? Math.min(...Object.keys(it.months).map(Number)) : 99;
+
+function buildChips() {
+  const box = $("chips");
+  box.innerHTML = "";
+  const all = document.createElement("button");
+  all.className = "chip"; all.textContent = "すべて"; all.id = "chip-all";
+  all.onclick = () => { sel.clear(); render(); };
+  box.appendChild(all);
+  MONTHS.forEach(m => {
+    const b = document.createElement("button");
+    b.className = "chip" + (m === nowMonth ? " now" : "");
+    b.textContent = m + "月"; b.dataset.m = m;
+    b.onclick = () => { sel.has(m) ? sel.delete(m) : sel.add(m); render(); };
+    box.appendChild(b);
+  });
+}
+
+function rowHTML(it) {
+  const title = it.jp || it.en;
+  const sub = it.jp && it.en ? it.en : "";
+  const strip = MONTHS.map(m => {
+    const lv = it.months[m] || "";
+    const s = sel.has(m) ? " sel" : "";
+    const t = lv === "best" ? "ベストな月" : lv === "range" ? "植え付け可能な期間" : "";
+    return `<div class="m ${lv}${s}" ${t ? `title="${m}月: ${t}"` : ""}>${m}</div>`;
+  }).join("");
+  const days = it.days != null ? `<span class="pill">${it.days}日</span>` : `<span class="pill none">日数不明</span>`;
+  return `<article class="row" data-mark="${it.mark}">
+    <div class="name"><b>${esc(title)}</b>${sub ? `<small>${esc(sub)}</small>` : ""}</div>
+    <div class="days">${days}</div>
+    <div class="strip" role="img" aria-label="${esc(title)}の植え付け月">${strip}</div>
+    <div class="special">${esc(it.special)}</div>
+  </article>`;
+}
+
+function memoHTML(it) {
+  const title = it.jp || it.en;
+  const sub = it.jp && it.en ? it.en : "";
+  return `<article class="row memo" data-mark="${it.mark}">
+    <div class="name"><b>${esc(title)}</b>${sub ? `<small>${esc(sub)}</small>` : ""}</div>
+    <div class="special">${esc(it.special)}</div>
+  </article>`;
+}
+
+function matches(it) {
+  if (query) {
+    const hay = (it.en + " " + it.jp + " " + it.special).toLowerCase();
+    if (!hay.includes(query)) return false;
+  }
+  return true;
+}
+
+function sorter(a, b) {
+  const byOrig = a.id - b.id;
+  switch (sortKey) {
+    case "daysAsc": return ((a.days ?? 9999) - (b.days ?? 9999)) || byOrig;
+    case "daysDesc": return ((b.days ?? -1) - (a.days ?? -1)) || byOrig;
+    case "name": return (a.jp || a.en).localeCompare(b.jp || b.en, "ja");
+    case "orig": return byOrig;
+    default: return (firstMonth(a) - firstMonth(b)) || byOrig;
+  }
+}
+
+function render() {
+  document.querySelectorAll("#chips .chip").forEach(c => {
+    const on = c.id === "chip-all" ? sel.size === 0 : sel.has(Number(c.dataset.m));
+    c.setAttribute("aria-pressed", on);
+  });
+  const crops = DATA.filter(it => !isMemo(it) && matches(it));
+  const noMonth = crops.filter(it => !hasMonths(it));
+  let shown = crops.filter(hasMonths);
+  if (sel.size) shown = shown.filter(it => [...sel].some(m => it.months[m]));
+  shown.sort(sorter);
+  const memos = DATA.filter(it => isMemo(it) && matches(it));
+
+  const label = sel.size ? [...sel].sort((a,b)=>a-b).map(m => m + "月").join("・") + "に植えられる作物" : "作物";
+  $("summary").innerHTML = `<strong>${label}</strong>: ${shown.length}件`;
+  $("list").innerHTML = shown.length ? shown.map(rowHTML).join("") : `<div class="empty">条件に合う作物がありません。月や検索語を変えてみてください。</div>`;
+
+  const extra = !sel.size ? noMonth : [];
+  $("list").insertAdjacentHTML("beforeend", extra.map(rowHTML).join(""));
+
+  $("memo").innerHTML = (!sel.size && memos.length)
+    ? `<div class="section-title">日数・月の記載なし(用途メモ)</div><div class="list">${memos.map(memoHTML).join("")}</div>` : "";
+  $("note").textContent = sel.size && noMonth.length
+    ? "月の記載がないため除外: " + noMonth.map(it => it.jp || it.en).join("、") : "";
+}
+
+$("q").addEventListener("input", e => { query = e.target.value.trim().toLowerCase(); render(); });
+$("sort").addEventListener("change", e => { sortKey = e.target.value; render(); });
+buildChips();
+(location.hash.match(/m=([\d,]+)/) || [,""])[1].split(",").map(Number).filter(m => MONTHS.includes(m)).forEach(m => sel.add(m));
+render();
+</script>
+</body>
+</html>
