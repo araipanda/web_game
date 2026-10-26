@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>罠の確率早見表</title>
+<style>
+:root {
+  --bg: #f6f5f1; --surface: #ffffff; --surface-2: #efede6; --text: #1f2421; --muted: #6a716b;
+  --line: #dcd9cf; --accent: #2b7bb9; --accent-ink: #ffffff; --accent-soft: #dcebf6;
+  --good: #2f7d4f; --warn: #c2661a; --bad: #b3372a; --shadow: 0 1px 2px rgba(0,0,0,.06);
+  --s: #8fc3e6; --m: #3f8fcf; --l: #1f5f99; --leg: #7a5fc0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171a18; --surface: #212623; --surface-2: #2a302c; --text: #e9ece8; --muted: #9aa39c;
+    --line: #394039; --accent: #6bb4e8; --accent-ink: #0b2236; --accent-soft: #1f3a50;
+    --good: #5cc58a; --warn: #e49a55; --bad: #ef7a6d; --shadow: none;
+    --s: #4b86ad; --m: #5ba3dc; --l: #8cc4f0; --leg: #a28ae0;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171a18; --surface: #212623; --surface-2: #2a302c; --text: #e9ece8; --muted: #9aa39c;
+  --line: #394039; --accent: #6bb4e8; --accent-ink: #0b2236; --accent-soft: #1f3a50;
+  --good: #5cc58a; --warn: #e49a55; --bad: #ef7a6d; --shadow: none;
+  --s: #4b86ad; --m: #5ba3dc; --l: #8cc4f0; --leg: #a28ae0;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", Meiryo, sans-serif; }
+.wrap { max-width: 1000px; margin: 0 auto; padding: 20px 16px 48px; }
+header h1 { margin: 0 0 4px; font-size: 22px; }
+header p { margin: 0; color: var(--muted); font-size: 13px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin: 16px 0; box-shadow: var(--shadow); }
+.panel h2 { margin: 0 0 10px; font-size: 14px; letter-spacing: .02em; }
+.panel h3 { margin: 0 0 6px; font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .06em; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { appearance: none; border: 1px solid var(--line); background: var(--surface-2); color: var(--text);
+  border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 14px; cursor: pointer; min-height: 38px; min-width: 52px; }
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.chip:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ctl { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 14px; }
+.ctl label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+select { width: 100%; min-height: 40px; padding: 8px 12px; font: inherit; font-size: 14px; color: var(--text);
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; }
+.check { display: flex; align-items: center; gap: 8px; min-height: 40px; font-size: 14px; color: var(--text); }
+.hint { color: var(--muted); font-size: 11px; }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { padding: 7px 8px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--muted); font-weight: 600; font-size: 12px; background: var(--surface); position: sticky; top: 0; }
+th:first-child, td:first-child { text-align: left; }
+tr.cur td { background: var(--accent-soft); font-weight: 600; }
+tr.cur td:first-child { box-shadow: inset 4px 0 0 var(--accent); }
+.bar { display: flex; height: 14px; border-radius: 4px; overflow: hidden; min-width: 120px; background: var(--surface-2); }
+.bar i { display: block; height: 100%; }
+.bar .s { background: var(--s); } .bar .m { background: var(--m); } .bar .l { background: var(--l); }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--muted); margin-top: 8px; }
+.pct { display: inline-flex; align-items: center; gap: 8px; }
+.pbar { width: 70px; height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; display: inline-block; }
+.pbar i { display: block; height: 100%; background: var(--good); }
+.fishes { display: flex; flex-direction: column; gap: 8px; }
+.fish { display: grid; grid-template-columns: minmax(150px, 1.2fr) 70px 1fr minmax(120px, 1fr) 90px; gap: 6px 12px; align-items: center;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; border-left: 5px solid var(--good); }
+.fish.no { opacity: .45; border-left-color: var(--line); }
+.fish .nm { display: flex; flex-direction: column; min-width: 0; }
+.fish .nm b { font-size: 15px; } .fish .nm small { color: var(--muted); font-size: 12px; }
+.tag { display: inline-block; font-size: 11px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); margin-right: 4px; white-space: nowrap; }
+.tag.pred { border-color: var(--bad); color: var(--bad); background: transparent; }
+.tag.lv { border-color: var(--accent); color: var(--accent); background: transparent; }
+.meta { font-size: 12px; color: var(--muted); }
+.share { font-size: 14px; font-weight: 650; text-align: right; font-variant-numeric: tabular-nums; }
+.share small { display: block; font-weight: 400; color: var(--muted); font-size: 11px; }
+.notes { font-size: 13px; color: var(--muted); margin: 0; padding-left: 18px; }
+.notes li { margin: 3px 0; }
+.calc { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 16px; margin: 14px 0 10px; padding: 12px 14px; border-radius: 10px; background: var(--accent-soft); }
+.calc .big { font-size: 26px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.calc .eq { font-size: 13px; color: var(--muted); }
+#coefTbl td:nth-child(2) { text-align: left; white-space: normal; }
+#coefTbl th:nth-child(2) { text-align: left; }
+.sub { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
+@media (max-width: 760px) {
+  .fish { grid-template-columns: 1fr auto; grid-template-areas: "nm share" "tags tags" "meta meta" "best best"; }
+  .fish .nm { grid-area: nm; } .fish .share { grid-area: share; } .fish .tags { grid-area: tags; }
+  .fish .meta { grid-area: meta; } .fish .best { grid-area: best; }
+  .fish .lvc { display: none; }
+}
+</style>
+<style>
+.res td.ok { color: var(--good); font-weight: 600; }
+.res td.ng { color: var(--muted); }
+.res tr.off td { opacity: .5; }
+.big2 { font-size: 22px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin: 14px 0; }
+.kpi { background: var(--accent-soft); border-radius: 10px; padding: 10px 14px; }
+.kpi small { display: block; color: var(--muted); font-size: 12px; }
+.why { font-size: 12px; color: var(--muted); white-space: normal; text-align: left; }
+.res td:nth-child(2), .res th:nth-child(2) { text-align: left; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Zomboid 罠の確率早見表</h1>
+    <p>ゲーム本体のLua(server/Traps)から算出。罠・餌・場所・スキルを選ぶと、1時間あたりに何が掛かるかが分かります。</p>
+  </header>
+
+  <section class="panel" aria-label="条件">
+    <h2>条件を選ぶ</h2>
+    <div class="ctl" style="margin-top:0">
+      <div><label for="tTrap">罠</label><select id="tTrap"></select></div>
+      <div><label for="tBait">餌</label><select id="tBait"></select></div>
+      <div><label for="tZone">設置場所(ゾーン)</label><select id="tZone"></select></div>
+      <div><label for="tSkill">罠の設置時の罠師スキル(Trapping)</label><select id="tSkill"></select></div>
+      <div><label for="tTime">時間帯</label>
+        <select id="tTime"><option value="night">夜(19〜5時)</option><option value="day">昼(6〜18時)</option></select></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="scroll"><table class="res" id="res"></table></div>
+    <p class="sub">確率は「1時間に1回の判定」あたりです。判定は毎ゲーム内1時間ごとに、罠ごとに行われます。</p>
+  </section>
+
+  <section class="panel" aria-label="仕組み">
+    <h2>判定の仕組み</h2>
+    <ul class="notes">
+      <li>餌を仕掛けた罠は、<b>ゲーム内で1時間ごと</b>に、動物ごとに次の2回の判定をします。どちらも通れば候補になります。
+        <ol class="notes">
+          <li>餌判定: <code>(罠の値 + 餌の値 + 罠師スキル×1.5)%</code></li>
+          <li>場所判定: <code>(ゾーンの値 + 罠師スキル×1.5)%</code></li>
+        </ol></li>
+      <li>候補になった動物がいれば、その中から<b>等確率で1匹</b>が掛かります。掛かると餌は消えます。</li>
+      <li>夜行性の動物(ウサギ・リス・アライグマ)は、19〜5時の判定でしか掛かりません。</li>
+      <li>餌が腐っていると(新鮮でないと)掛かりません。</li>
+      <li><b>プレイヤーが近くにいて、罠の場所が読み込まれている間は、動物が掛かる判定は行われません。</b>罠から離れて待つ必要があります。</li>
+      <li>罠師スキルは、<b>罠を設置した時点</b>のプレイヤーのレベルが罠に記録されます。後でスキルが上がっても、その罠には反映されません。</li>
+      <li>動物が掛かっていない間は、毎時 <code>1/(罠の強度+10)</code> の確率で餌が盗られます。また、罠が読み込まれていないとき、毎時 <code>1/40 × 1/罠の強度</code> の確率で罠自体が壊れます。</li>
+      <li>ウサギ・アライグマ・ネズミ・ラットは、条件によって生きたまま捕まえられます(生け捕り)。リスと鳥は死体です。</li>
+    </ul>
+  </section>
+
+  <section class="panel" aria-label="罠の一覧">
+    <h2>罠の一覧</h2>
+    <div class="scroll"><table id="trapTbl"></table></div>
+  </section>
+
+  <section class="panel" aria-label="動物の一覧">
+    <h2>動物の一覧</h2>
+    <div class="scroll"><table id="animTbl"></table></div>
+  </section>
+</div>
+
+<script>
+const TRAPS = [{"id": "Base.TrapCrate", "jp": "クレートトラップ", "strength": 15}, {"id": "Base.TrapBox", "jp": "ボックストラップ", "strength": 15}, {"id": "Base.TrapCage", "jp": "ケージトラップ", "strength": 20}, {"id": "Base.TrapSnare", "jp": "跳ね上げトラップ", "strength": 10}, {"id": "Base.TrapStick", "jp": "スティックトラップ", "strength": 15}, {"id": "Base.TrapMouse", "jp": "ネズミ捕り", "strength": 50}];
+const ANIMALS = [{"id": "rabbit", "minHour": 19, "maxHour": 5, "minSize": 30, "maxSize": 100, "alive": true, "zones": {"TownZone": 2, "TrailerPark": 2, "Vegitation": 10, "Forest": 12, "DeepForest": 15, "BirchForest": 12, "BirchMixForest": 12, "FarmForest": 12, "FarmMixForest": 12, "PRForest": 12, "PHForest": 12, "PHMixForest": 12, "OrganicForest": 15}, "traps": {"Base.TrapCage": 40, "Base.TrapSnare": 30, "Base.TrapBox": 30, "Base.TrapCrate": 30}, "baits": {"Base.Carrots": 45, "Base.Apple": 35, "Base.Lettuce": 40, "Base.BellPepper": 40, "Base.Cabbage": 40, "Base.Corn": 35, "Base.Banana": 35, "Base.Potato": 35, "Base.Tomato": 35, "Base.Peach": 35}, "jp": "ウサギ"}, {"id": "squirrel", "minHour": 19, "maxHour": 5, "minSize": 10, "maxSize": 60, "alive": false, "zones": {"TownZone": 2, "TrailerPark": 2, "Vegitation": 10, "Forest": 12, "DeepForest": 15, "BirchForest": 12, "BirchMixForest": 12, "FarmForest": 12, "FarmMixForest": 12, "PRForest": 12, "PHForest": 12, "PHMixForest": 12, "OrganicForest": 15}, "traps": {"Base.TrapBox": 25, "Base.TrapCage": 40, "Base.TrapCrate": 30, "Base.TrapSnare": 30}, "baits": {"Base.PeanutButter": 45, "Base.Cereal": 45, "Base.Orange": 40, "Base.Peanuts": 40, "Base.Apple": 40, "Base.Corn": 40, "Base.Popcorn": 40, "Base.Lettuce": 40, "Base.BellPepper": 30, "Base.Peach": 35}, "jp": "リス"}, {"id": "bird", "minHour": 0, "maxHour": 0, "minSize": 2, "maxSize": 32, "alive": false, "zones": {"Farm": 35, "FarmLand": 35, "TownZone": 30, "Vegitation": 30, "TrailerPark": 20, "Forest": 20, "DeepForest": 20, "BirchForest": 20, "BirchMixForest": 20, "OrganicForest": 20, "FarmForest": 20, "FarmMixForest": 20, "PRForest": 20, "PHForest": 20, "PHMixForest": 20}, "traps": {"Base.TrapStick": 40}, "baits": {"Base.AmericanLadyCaterpillar": 50, "Base.BandedWoolyBearCaterpillar": 50, "Base.Bread": 50, "Base.BreadSlices": 50, "Base.Centipede": 50, "Base.Centipede2": 50, "Base.Cereal": 45, "Base.Cockroach": 50, "Base.Corn": 45, "Base.Cricket": 50, "Base.Grasshopper": 50, "Base.Millipede": 50, "Base.Millipede2": 50, "Base.MonarchCaterpillar": 50, "Base.Pillbug": 50, "Base.SawflyLarva": 50, "Base.SilkMothCaterpillar": 50, "Base.SwallowtailCaterpillar": 50, "Base.Termites": 50, "Base.Worm": 50}, "jp": "鳥"}, {"id": "mouse", "minHour": 0, "maxHour": 0, "minSize": 1, "maxSize": 10, "alive": true, "zones": {"Farm": 60, "FarmLand": 60, "TownZone": 50, "TrailerPark": 60, "Vegitation": 20, "Forest": 10, "DeepForest": 10, "BirchForest": 10, "BirchMixForest": 10, "OrganicForest": 10, "FarmForest": 10, "FarmMixForest": 10, "PRForest": 10, "PHForest": 10, "PHMixForest": 10}, "traps": {"Base.TrapMouse": 30}, "baits": {"Base.Cheese": 60, "Base.Processedcheese": 55, "Base.PeanutButter": 40, "Base.BaconBits": 40, "Base.Chocolate": 30, "Base.Orange": 35, "Base.Apple": 35, "Base.Tomato": 35}, "jp": "ネズミ(マウス)"}, {"id": "rat", "minHour": 0, "maxHour": 0, "minSize": 5, "maxSize": 25, "alive": true, "zones": {"Farm": 50, "FarmLand": 50, "TrailerPark": 40, "TownZone": 30, "Vegitation": 20, "Forest": 10, "DeepForest": 10, "BirchForest": 10, "BirchMixForest": 10, "OrganicForest": 10, "FarmForest": 10, "FarmMixForest": 10, "PRForest": 10, "PHForest": 10, "PHMixForest": 10}, "traps": {"Base.TrapMouse": 25}, "baits": {"Base.Cheese": 60, "Base.PeanutButter": 40, "Base.BaconBits": 40, "Base.Chocolate": 30, "Base.Orange": 35, "Base.Apple": 35, "Base.Tomato": 35, "Base.Processedcheese": 55}, "jp": "ラット"}, {"id": "raccoon", "minHour": 19, "maxHour": 5, "minSize": 30, "maxSize": 100, "alive": true, "zones": {"TownZone": 2, "TrailerPark": 2, "Vegitation": 10, "Forest": 12, "DeepForest": 15, "BirchForest": 12, "BirchMixForest": 12, "FarmForest": 12, "FarmMixForest": 12, "PRForest": 12, "PHForest": 12, "PHMixForest": 12, "OrganicForest": 15}, "traps": {"Base.TrapCage": 40, "Base.TrapSnare": 30, "Base.TrapBox": 30, "Base.TrapCrate": 30}, "baits": {"Base.Carrots": 45, "Base.Apple": 35, "Base.Lettuce": 40, "Base.BellPepper": 40, "Base.Cabbage": 40, "Base.Corn": 35, "Base.Banana": 35, "Base.Potato": 35, "Base.Tomato": 35, "Base.Peach": 35}, "jp": "アライグマ"}];
+const BAITS = [{"id": "Base.AmericanLadyCaterpillar", "jp": "イモムシ"}, {"id": "Base.Apple", "jp": "リンゴ"}, {"id": "Base.BaconBits", "jp": "刻みベーコン"}, {"id": "Base.Banana", "jp": "バナナ"}, {"id": "Base.BandedWoolyBearCaterpillar", "jp": "イモムシ"}, {"id": "Base.BellPepper", "jp": "ピーマン"}, {"id": "Base.Bread", "jp": "パン"}, {"id": "Base.BreadSlices", "jp": "パン(スライス)"}, {"id": "Base.Cabbage", "jp": "キャベツ"}, {"id": "Base.Carrots", "jp": "ニンジン"}, {"id": "Base.Centipede", "jp": "ムカデ"}, {"id": "Base.Centipede2", "jp": "ムカデ"}, {"id": "Base.Cereal", "jp": "シリアル"}, {"id": "Base.Cheese", "jp": "チーズ"}, {"id": "Base.Chocolate", "jp": "ミルクチョコレートバー"}, {"id": "Base.Cockroach", "jp": "ゴキブリ"}, {"id": "Base.Corn", "jp": "トウモロコシ"}, {"id": "Base.Cricket", "jp": "コオロギ"}, {"id": "Base.Grasshopper", "jp": "バッタ"}, {"id": "Base.Lettuce", "jp": "レタス"}, {"id": "Base.Millipede", "jp": "ヤスデ"}, {"id": "Base.Millipede2", "jp": "ヤスデ"}, {"id": "Base.MonarchCaterpillar", "jp": "イモムシ"}, {"id": "Base.Orange", "jp": "オレンジ"}, {"id": "Base.Peach", "jp": "モモ"}, {"id": "Base.PeanutButter", "jp": "ピーナッツバター"}, {"id": "Base.Peanuts", "jp": "ピーナッツ"}, {"id": "Base.Pillbug", "jp": "ダンゴムシ"}, {"id": "Base.Popcorn", "jp": "インスタントポップコーン"}, {"id": "Base.Potato", "jp": "ジャガイモ"}, {"id": "Base.Processedcheese", "jp": "プロセスチーズ"}, {"id": "Base.SawflyLarva", "jp": "イモムシ"}, {"id": "Base.SilkMothCaterpillar", "jp": "イモムシ"}, {"id": "Base.SwallowtailCaterpillar", "jp": "イモムシ"}, {"id": "Base.Termites", "jp": "シロアリ"}, {"id": "Base.Tomato", "jp": "トマト"}, {"id": "Base.Worm", "jp": "ミミズ"}];
+const ZONES = ["TownZone", "TrailerPark", "Vegitation", "Forest", "DeepForest", "BirchForest", "BirchMixForest", "FarmForest", "FarmMixForest", "PRForest", "PHForest", "PHMixForest", "OrganicForest", "Farm", "FarmLand"];
+const ZJP = { TownZone: "町", TrailerPark: "トレーラーパーク", Vegitation: "草地・茂み", Forest: "森", DeepForest: "深い森",
+  BirchForest: "白樺の森", BirchMixForest: "白樺の混交林", FarmForest: "農場の森", FarmMixForest: "農場の混交林",
+  PRForest: "PRForest", PHForest: "PHForest", PHMixForest: "PHMixForest", OrganicForest: "オーガニックの森",
+  Farm: "農場", FarmLand: "農地" };
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const st = { trap: "Base.TrapCage", bait: "Base.Apple", zone: "Forest", skill: 0, time: "night" };
+const pct = (v) => (Math.round(v * 1000) / 10) + "%";
+const hrs = (h) => h >= 100 ? "100時間以上" : (Math.round(h * 10) / 10) + "時間";
+
+function hourOk(a, night) {
+  if (a.minHour === a.maxHour) return true;
+  return night;  // 該当動物はすべて19〜5時
+}
+
+function calc() {
+  const trap = TRAPS.find(t => t.id === st.trap);
+  const night = st.time === "night";
+  const rows = ANIMALS.map(a => {
+    const T = a.traps[st.trap], B = a.baits[st.bait], Z = a.zones[st.zone];
+    const why = [];
+    if (T === undefined) why.push("この罠では掛からない");
+    if (B === undefined) why.push("この餌には寄らない");
+    if (Z === undefined) why.push("この場所にいない");
+    if (!hourOk(a, night)) why.push("この時間は活動しない");
+    let p = 0;
+    if (!why.length) p = Math.min(1, (T + B + st.skill * 1.5) / 100) * Math.min(1, (Z + st.skill * 1.5) / 100);
+    return { a, T, B, Z, why, p };
+  });
+  // 候補になった動物から等確率で1匹: E[1/(1+他の候補数)] を厳密に計算
+  const ps = rows.map(r => r.p);
+  rows.forEach((r, i) => {
+    let dist = [1];
+    ps.forEach((q, j) => {
+      if (j === i) return;
+      const nd = new Array(dist.length + 1).fill(0);
+      dist.forEach((d, k) => { nd[k] += d * (1 - q); nd[k + 1] += d * q; });
+      dist = nd;
+    });
+    r.share = r.p * dist.reduce((s, d, k) => s + d / (k + 1), 0);
+  });
+  const c = 1 - ps.reduce((m, q) => m * (1 - q), 1);
+  const steal = 1 / (trap.strength + 10);
+  const before = c > 0 ? c / (c + (1 - c) * steal) : 0;
+  return { rows, c, steal, before, trap };
+}
+
+function render() {
+  const { rows, c, steal, before, trap } = calc();
+  $("kpis").innerHTML = `
+    <div class="kpi"><small>1時間に何かが掛かる確率</small><span class="big2">${pct(c)}</span></div>
+    <div class="kpi"><small>掛かるまでの平均時間(目安)</small><span class="big2">${c > 0 ? hrs(1 / c) : "—"}</span></div>
+    <div class="kpi"><small>餌が盗られる前に掛かる確率</small><span class="big2">${c > 0 ? pct(before) : "—"}</span>
+      <small>餌の盗られ率 毎時${pct(steal)}</small></div>`;
+  $("res").innerHTML = `<tr><th>動物</th><th>判定</th><th>罠</th><th>餌</th><th>場所</th><th>候補になる確率</th><th>実際に掛かる確率</th></tr>` +
+    rows.map(r => `<tr class="${r.why.length ? "off" : ""}"><td>${esc(r.a.jp)}</td>
+      <td class="why">${r.why.length ? esc(r.why.join(" / ")) : `餌判定 ${Math.min(100, r.T + r.B + st.skill * 1.5)}% × 場所判定 ${Math.min(100, r.Z + st.skill * 1.5)}%`}</td>
+      <td>${r.T ?? "—"}</td><td>${r.B ?? "—"}</td><td>${r.Z ?? "—"}</td>
+      <td class="${r.p ? "ok" : "ng"}">${r.p ? pct(r.p) : "—"}</td><td class="${r.share ? "ok" : "ng"}">${r.share ? pct(r.share) : "—"}</td></tr>`).join("");
+}
+
+function init() {
+  const fill = (id, opts, val, key) => {
+    const s = $(id);
+    opts.forEach(([v, label]) => s.add(new Option(label, v)));
+    s.value = val; s.onchange = () => { st[key] = id === "tSkill" ? +s.value : s.value; render(); };
+  };
+  fill("tTrap", TRAPS.map(t => [t.id, `${t.jp}(強度${t.strength})`]), st.trap, "trap");
+  fill("tBait", BAITS.map(b => [b.id, b.jp]), st.bait, "bait");
+  fill("tZone", ZONES.map(z => [z, (ZJP[z] || z) + (ZJP[z] && ZJP[z] !== z ? `(${z})` : "")]), st.zone, "zone");
+  fill("tSkill", Array.from({ length: 11 }, (_, i) => [i, "Lv" + i]), st.skill, "skill");
+  $("tTime").onchange = (e) => { st.time = e.target.value; render(); };
+
+  $("trapTbl").innerHTML = `<tr><th>罠</th><th>強度</th><th>餌が盗られる確率(毎時)</th><th>壊れる確率(毎時、読み込まれていない時)</th><th>掛かる動物</th></tr>` +
+    TRAPS.map(t => `<tr><td>${esc(t.jp)}</td><td>${t.strength}</td><td>${pct(1 / (t.strength + 10))}</td><td>${(100 / 40 / t.strength).toFixed(2)}%</td>
+      <td style="white-space:normal;text-align:left">${ANIMALS.filter(a => a.traps[t.id] !== undefined).map(a => esc(a.jp)).join("、")}</td></tr>`).join("");
+  $("animTbl").innerHTML = `<tr><th>動物</th><th>活動時間</th><th>サイズ(空腹軽減)</th><th>生け捕り</th><th>掛かる罠(罠の値)</th></tr>` +
+    ANIMALS.map(a => `<tr><td>${esc(a.jp)}</td><td>${a.minHour === a.maxHour ? "終日" : a.minHour + "〜" + a.maxHour + "時"}</td><td>${a.minSize}〜${a.maxSize}</td><td>${a.alive ? "可" : "—"}</td>
+      <td style="white-space:normal;text-align:left">${Object.entries(a.traps).map(([k, v]) => esc((TRAPS.find(t => t.id === k) || {}).jp || k) + " " + v).join("、")}</td></tr>`).join("");
+  render();
+}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>釣りスキル早見表</title>
+<style>
+:root {
+  --bg: #f6f5f1; --surface: #ffffff; --surface-2: #efede6; --text: #1f2421; --muted: #6a716b;
+  --line: #dcd9cf; --accent: #2b7bb9; --accent-ink: #ffffff; --accent-soft: #dcebf6;
+  --good: #2f7d4f; --warn: #c2661a; --bad: #b3372a; --shadow: 0 1px 2px rgba(0,0,0,.06);
+  --s: #8fc3e6; --m: #3f8fcf; --l: #1f5f99; --leg: #7a5fc0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171a18; --surface: #212623; --surface-2: #2a302c; --text: #e9ece8; --muted: #9aa39c;
+    --line: #394039; --accent: #6bb4e8; --accent-ink: #0b2236; --accent-soft: #1f3a50;
+    --good: #5cc58a; --warn: #e49a55; --bad: #ef7a6d; --shadow: none;
+    --s: #4b86ad; --m: #5ba3dc; --l: #8cc4f0; --leg: #a28ae0;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171a18; --surface: #212623; --surface-2: #2a302c; --text: #e9ece8; --muted: #9aa39c;
+  --line: #394039; --accent: #6bb4e8; --accent-ink: #0b2236; --accent-soft: #1f3a50;
+  --good: #5cc58a; --warn: #e49a55; --bad: #ef7a6d; --shadow: none;
+  --s: #4b86ad; --m: #5ba3dc; --l: #8cc4f0; --leg: #a28ae0;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", Meiryo, sans-serif; }
+.wrap { max-width: 1000px; margin: 0 auto; padding: 20px 16px 48px; }
+header h1 { margin: 0 0 4px; font-size: 22px; }
+header p { margin: 0; color: var(--muted); font-size: 13px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin: 16px 0; box-shadow: var(--shadow); }
+.panel h2 { margin: 0 0 10px; font-size: 14px; letter-spacing: .02em; }
+.panel h3 { margin: 0 0 6px; font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .06em; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { appearance: none; border: 1px solid var(--line); background: var(--surface-2); color: var(--text);
+  border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 14px; cursor: pointer; min-height: 38px; min-width: 52px; }
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.chip:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ctl { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 14px; }
+.ctl label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+select { width: 100%; min-height: 40px; padding: 8px 12px; font: inherit; font-size: 14px; color: var(--text);
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; }
+.check { display: flex; align-items: center; gap: 8px; min-height: 40px; font-size: 14px; color: var(--text); }
+.hint { color: var(--muted); font-size: 11px; }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { padding: 7px 8px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { color: var(--muted); font-weight: 600; font-size: 12px; background: var(--surface); position: sticky; top: 0; }
+th:first-child, td:first-child { text-align: left; }
+tr.cur td { background: var(--accent-soft); font-weight: 600; }
+tr.cur td:first-child { box-shadow: inset 4px 0 0 var(--accent); }
+.bar { display: flex; height: 14px; border-radius: 4px; overflow: hidden; min-width: 120px; background: var(--surface-2); }
+.bar i { display: block; height: 100%; }
+.bar .s { background: var(--s); } .bar .m { background: var(--m); } .bar .l { background: var(--l); }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--muted); margin-top: 8px; }
+.pct { display: inline-flex; align-items: center; gap: 8px; }
+.pbar { width: 70px; height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; display: inline-block; }
+.pbar i { display: block; height: 100%; background: var(--good); }
+.fishes { display: flex; flex-direction: column; gap: 8px; }
+.fish { display: grid; grid-template-columns: minmax(150px, 1.2fr) 70px 1fr minmax(120px, 1fr) 90px; gap: 6px 12px; align-items: center;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; border-left: 5px solid var(--good); }
+.fish.no { opacity: .45; border-left-color: var(--line); }
+.fish .nm { display: flex; flex-direction: column; min-width: 0; }
+.fish .nm b { font-size: 15px; } .fish .nm small { color: var(--muted); font-size: 12px; }
+.tag { display: inline-block; font-size: 11px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); margin-right: 4px; white-space: nowrap; }
+.tag.pred { border-color: var(--bad); color: var(--bad); background: transparent; }
+.tag.lv { border-color: var(--accent); color: var(--accent); background: transparent; }
+.meta { font-size: 12px; color: var(--muted); }
+.share { font-size: 14px; font-weight: 650; text-align: right; font-variant-numeric: tabular-nums; }
+.share small { display: block; font-weight: 400; color: var(--muted); font-size: 11px; }
+.notes { font-size: 13px; color: var(--muted); margin: 0; padding-left: 18px; }
+.notes li { margin: 3px 0; }
+.calc { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 16px; margin: 14px 0 10px; padding: 12px 14px; border-radius: 10px; background: var(--accent-soft); }
+.calc .big { font-size: 26px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.calc .eq { font-size: 13px; color: var(--muted); }
+#coefTbl td:nth-child(2) { text-align: left; white-space: normal; }
+#coefTbl th:nth-child(2) { text-align: left; }
+.sub { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
+@media (max-width: 760px) {
+  .fish { grid-template-columns: 1fr auto; grid-template-areas: "nm share" "tags tags" "meta meta" "best best"; }
+  .fish .nm { grid-area: nm; } .fish .share { grid-area: share; } .fish .tags { grid-area: tags; }
+  .fish .meta { grid-area: meta; } .fish .best { grid-area: best; }
+  .fish .lvc { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Zomboid 釣りスキル早見表</h1>
+    <p>ゲーム本体のLua(shared/Fishing)から算出。レベルを選ぶと、魚が掛かる確率・サイズの出方・釣れる魚種が切り替わります。</p>
+  </header>
+
+  <section class="panel" aria-label="条件">
+    <h2>釣りスキルレベル</h2>
+    <div class="chips" id="lvchips"></div>
+    <div class="ctl">
+      <div>
+        <label for="bait">使う餌・ルアー(魚種ごとの出やすさに反映)</label>
+        <select id="bait"></select>
+      </div>
+      <div>
+        <label for="trash">場所のゴミの多さ(デバッグ画面の「Trash: ○%」と同じ値)</label>
+        <select id="trash">
+          <option value="0.1">10%(ほぼゴミなし)</option>
+          <option value="0.2" selected>20%</option>
+          <option value="0.3">30%</option>
+          <option value="0.4">40%</option>
+          <option value="0.5">50%(ゴミが多い)</option>
+        </select>
+      </div>
+      <div>
+        <label>条件</label>
+        <label class="check"><input type="checkbox" id="shore"> <span>岸の近くで釣る <small class="hint">(ウキの着水位置から半径7マス以内に岸がある場合。足元3マス未満は判定間隔が3倍)</small></span></label>
+        <label class="check"><input type="checkbox" id="reel" checked> リール操作中に掛かる(肉食魚を含める)</label>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" aria-label="レベル別一覧">
+    <h2>レベル別の一覧</h2>
+    <div class="scroll"><table id="tbl"></table></div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--s)"></i>小</span>
+      <span><i class="dot" style="background:var(--m)"></i>中</span>
+      <span><i class="dot" style="background:var(--l)"></i>大</span>
+    </div>
+    <p class="sub">「魚が掛かる確率」は、選択中のゴミ係数で魚(ゴミでない)が来る確率です。魚のいない水域では下の「魚なし水域」の確率になります。</p>
+  </section>
+
+  <section class="panel" aria-label="魚種">
+    <h2 id="fishTitle">釣れる魚</h2>
+    <div class="fishes" id="fishes"></div>
+    <p class="sub" id="fishNote"></p>
+  </section>
+
+  <section class="panel" aria-label="魚の数と撒き餌">
+    <h2>「魚の数」と撒き餌</h2>
+    <h3>魚の数とは</h3>
+    <ul class="notes">
+      <li>その釣り場(ウキを落とした座標)にいる魚の多さを表すゲーム内部の値です。食いつきやすさ(0匹=×0.1 〜 26匹以上=×1.5)と、魚が掛かるかどうかに効きます。魚が0匹の場所では、掛かる魚は必ず「小」サイズになります。</li>
+      <li>場所ごとに違い、毎日入れ替わります(日付で魚の群れの分布が変わります)。サンドボックス設定の「魚の豊富さ」(物凄く少ない〜物凄く豊富)でも全体の量が変わります。</li>
+      <li>通常のプレイ画面には数値が出ません。「同じ場所でも日によって食いつきが違う」と感じたら、これが原因です。</li>
+    </ul>
+    <h3 style="margin-top:14px">撒き餌で魚を増やす</h3>
+    <ul class="notes">
+      <li>水に撒き餌を入れると、その場所の魚の数を増やせます。撒き餌の元だけでは効果がなく、食べ物を加えるほど効果が高まります。</li>
+      <li><b>作り方</b>: ①レシピ「撒き餌の元を作る」を習得する → ②砂地の地面で右クリックして「撒き餌を作る」 → ③撒き餌に食べ物を加える(インベントリで「撒き餌に餌を追加」)。</li>
+      <li><b>使い方</b>: 水辺で右クリックして「撒き餌を入れる」(動作に約200tickかかります)。撒き餌は使うと1個消費されます。</li>
+      <li><b>効果の強さ</b>: <code>400 × 加えた食べ物の空腹軽減量</code> です。食べ物を加えていない撒き餌は効果が0で、そのまま消費されます。</li>
+      <li>効果がどれだけの範囲に、どれだけの時間続くかは、ゲーム内部(Java側)で決まり、Luaからは分かりません。</li>
+    </ul>
+  </section>
+
+  <section class="panel" aria-label="食いつきの条件">
+    <h2>食いつきやすさ(気温・天気・時間帯など)</h2>
+    <p class="sub" style="margin:0 0 10px">食いつく確率 = 0.8 × 気温 × 天気 × 時間帯 × 針 × 魚の数(100%が上限)。魚の種類・サイズ・ゴミの確率には影響しません。</p>
+    <div class="ctl" style="margin-top:0">
+      <div><label for="cTemp">気温</label><select id="cTemp"></select></div>
+      <div><label for="cWeather">天気</label><select id="cWeather"></select></div>
+      <div><label for="cTime">時間帯</label><select id="cTime"></select></div>
+      <div><label for="cHook">針</label><select id="cHook"></select></div>
+      <div><label for="cNum">その場所の魚の数(通常は画面に出ない値。目安で選択)</label><select id="cNum"></select></div>
+    </div>
+    <div class="calc" id="calc" aria-live="polite"></div>
+    <div class="scroll"><table id="coefTbl"></table></div>
+    <p class="sub">ウキを投げると、一定間隔で「食いつくか」の判定が繰り返されます。判定のたびに上の確率で成功し、成功すると魚が食いついて、約360tick(およそ12秒)の間に竿を引き上げないと逃げられます。</p>
+    <p class="sub">判定の間隔は、まず「魚の数 × 気温 × 天気 × 時間帯 × 100」(針は含まない。魚が0匹のときは0として計算)で基準値を決めます: 80以上=500、65以上=650、40以上=1000、40未満=1500、0=2000(単位はtick)。実際の間隔は、この基準値の0.8倍(最初の1回だけは基準値そのまま)で、岸の近くなら2倍、自分の足元3マス以内なら3倍になります。</p>
+    <p class="sub">1tickは、等速(1倍速)でおよそ1/30秒の目安です(正確な値はゲームの処理速度に依存します)。表示の秒数はこの換算による概算で、岸の近くや足元の補正は含めていません。</p>
+  </section>
+
+  <section class="panel" aria-label="メモ">
+    <h2>メモ</h2>
+    <ul class="notes">
+      <li>魚は「その魚の最大重量 ≦ レベルごとの重量上限」のものだけが対象になります。上限を超える魚種はそのレベルでは釣れません。</li>
+      <li>餌・ルアーごとの係数(0〜1)が大きい魚ほど選ばれやすくなります。表示の割合は、そのレベルで釣れる魚種の係数の合計に対する比率です。</li>
+      <li>肉食魚(ブルーキャットフィッシュ、フラットヘッド、マスキー、アリゲーターガー)は、リール操作中に掛かったときだけ釣れます。</li>
+      <li>レベル8以上で「大」サイズが出ると、1/20 で記録級に格上げされ、さらに条件を満たすと「伝説」サイズになります。</li>
+      <li>餌の消費: 生き餌・食べ物は <code>(19−Lv)/20</code> の確率で減ります(Lv0:95%、Lv10:45%)。ルアーは <code>1/(30×(Lv+1))</code> です。</li>
+      <li>ラインの張力上限は <code>(120 + Lv×10) × 竿係数</code>(初回は3倍)。キャストのブレは <code>1/(Lv+1)</code> に縮みます。</li>
+      <li>場所ごとのゴミの多さはゲーム内部(Java側)で決まり、Luaからは分かりません(デバッグ画面には「Trash: ○%」と出ます)。Lv5以上では0.8倍、Lv7以上で0.6倍、Lv9以上で0.2倍になります。</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+const FISH = [{"id": "LargemouthBass", "jp": "オオクチバス", "river": true, "lake": true, "maxLen": "51", "trophyLen": "75", "maxW": 2.8, "trophyW": "10", "pred": false, "minLvl": 5, "lures": {"昆虫": 0.3, "小魚": 0.7, "ヒル・貝類": 0.5, "ミミズ類": 0.7, "肉類": 0.1, "パン・穀物": 0.0}, "coef": {"Cricket": 0.3, "Grasshopper": 0.3, "AmericanLadyCaterpillar": 0.3, "BandedWoolyBearCaterpillar": 0.3, "Centipede": 0.3, "Centipede2": 0.3, "Millipede": 0.3, "Millipede2": 0.3, "MonarchCaterpillar": 0.3, "Pillbug": 0.3, "SawflyLarva": 0.3, "SilkMothCaterpillar": 0.3, "Cockroach": 0.3, "SwallowtailCaterpillar": 0.3, "Termites": 0.3, "BaitFish": 0.7, "Tadpole": 0.7, "Leech": 0.5, "Snail": 0.5, "Slug": 0.5, "Slug2": 0.5, "Worm": 0.7, "Maggots": 0.9, "Crayfish": 0.1, "Shrimp": 0.1, "DogfoodOpen": 0.1, "FishFillet": 0.1, "Smallanimalmeat": 0.1, "Smallbirdmeat": 0.1, "MeatPatty": 0.1, "FrogMeat": 0.1, "Steak": 0.1, "Cheese": 0.0, "CannedCornOpen": 0.0, "Dough": 0.0, "Bread": 0.0, "BreadDough": 0.0, "BaguetteDough": 0.0, "Baguette": 0.0, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["ウジムシ"]}, {"id": "SmallmouthBass", "jp": "コクチバス", "river": true, "lake": true, "maxLen": "41", "trophyLen": "55", "maxW": 2.3, "trophyW": "5", "pred": false, "minLvl": 4, "lures": {"昆虫": 0.3, "小魚": 0.7, "ヒル・貝類": 0.5, "ミミズ類": 0.7, "肉類": 0.1, "パン・穀物": 0.0}, "coef": {"Cricket": 0.3, "Grasshopper": 0.3, "AmericanLadyCaterpillar": 0.3, "BandedWoolyBearCaterpillar": 0.3, "Centipede": 0.3, "Centipede2": 0.3, "Millipede": 0.3, "Millipede2": 0.3, "MonarchCaterpillar": 0.3, "Pillbug": 0.3, "SawflyLarva": 0.3, "SilkMothCaterpillar": 0.3, "Cockroach": 0.3, "SwallowtailCaterpillar": 0.3, "Termites": 0.3, "BaitFish": 0.7, "Tadpole": 0.7, "Leech": 0.5, "Snail": 0.5, "Slug": 0.5, "Slug2": 0.5, "Worm": 0.9, "Maggots": 0.7, "Crayfish": 0.1, "Shrimp": 0.1, "DogfoodOpen": 0.1, "FishFillet": 0.1, "Smallanimalmeat": 0.1, "Smallbirdmeat": 0.1, "MeatPatty": 0.1, "FrogMeat": 0.1, "Steak": 0.1, "Cheese": 0.0, "CannedCornOpen": 0.0, "Dough": 0.0, "Bread": 0.0, "BreadDough": 0.0, "BaguetteDough": 0.0, "Baguette": 0.0, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["ミミズ"]}, {"id": "WhiteBass", "jp": "ホワイトバス", "river": true, "lake": true, "maxLen": "38", "trophyLen": "40", "maxW": 1.5, "trophyW": "3", "pred": false, "minLvl": 1, "lures": {"昆虫": 0.3, "小魚": 0.3, "ヒル・貝類": 0.7, "ミミズ類": 0.7, "肉類": 0.0, "パン・穀物": 0.0}, "coef": {"Cricket": 0.3, "Grasshopper": 0.3, "AmericanLadyCaterpillar": 0.3, "BandedWoolyBearCaterpillar": 0.3, "Centipede": 0.3, "Centipede2": 0.3, "Millipede": 0.3, "Millipede2": 0.3, "MonarchCaterpillar": 0.3, "Pillbug": 0.3, "SawflyLarva": 0.3, "SilkMothCaterpillar": 0.3, "Cockroach": 0.3, "SwallowtailCaterpillar": 0.3, "Termites": 0.3, "BaitFish": 0.3, "Tadpole": 0.9, "Leech": 0.7, "Snail": 0.7, "Slug": 0.7, "Slug2": 0.7, "Worm": 0.7, "Maggots": 0.7, "Crayfish": 0.0, "Shrimp": 0.0, "DogfoodOpen": 0.0, "FishFillet": 0.0, "Smallanimalmeat": 0.0, "Smallbirdmeat": 0.0, "MeatPatty": 0.0, "FrogMeat": 0.0, "Steak": 0.0, "Cheese": 0.0, "CannedCornOpen": 0.0, "Dough": 0.0, "Bread": 0.0, "BreadDough": 0.0, "BaguetteDough": 0.0, "Baguette": 0.0, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["オタマジャクシ"]}, {"id": "SpottedBass", "jp": "スポッテッドバス", "river": true, "lake": true, "maxLen": "38", "trophyLen": "45", "maxW": 1.8, "trophyW": "5", "pred": false, "minLvl": 2, "lures": {"昆虫": 0.3, "小魚": 0.3, "ヒル・貝類": 0.7, "ミミズ類": 0.7, "肉類": 0.0, "パン・穀物": 0.0}, "coef": {"Cricket": 0.3, "Grasshopper": 0.3, "AmericanLadyCaterpillar": 0.3, "BandedWoolyBearCaterpillar": 0.3, "Centipede": 0.3, "Centipede2": 0.3, "Millipede": 0.3, "Millipede2": 0.3, "MonarchCaterpillar": 0.3, "Pillbug": 0.3, "SawflyLarva": 0.3, "SilkMothCaterpillar": 0.3, "Cockroach": 0.3, "SwallowtailCaterpillar": 0.3, "Termites": 0.3, "BaitFish": 0.3, "Tadpole": 0.3, "Leech": 0.7, "Snail": 0.7, "Slug": 0.7, "Slug2": 0.7, "Worm": 0.7, "Maggots": 0.7, "Crayfish": 0.9, "Shrimp": 0.0, "DogfoodOpen": 0.0, "FishFillet": 0.0, "Smallanimalmeat": 0.0, "Smallbirdmeat": 0.0, "MeatPatty": 0.0, "FrogMeat": 0.0, "Steak": 0.0, "Cheese": 0.0, "CannedCornOpen": 0.0, "Dough": 0.0, "Bread": 0.0, "BreadDough": 0.0, "BaguetteDough": 0.0, "Baguette": 0.0, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["ザリガニ"]}, {"id": "StripedBass", "jp": "ストライプドバス", "river": true, "lake": true, "maxLen": "76", "trophyLen": "90", "maxW": 9.0, "trophyW": "15", "pred": false, "minLvl": 7, "lures": {"昆虫": 0.1, "小魚": 0.7, "ヒル・貝類": 0.5, "ミミズ類": 0.7, "肉類": 0.5, "パン・穀物": 0.0}, "coef": {"Cricket": 0.1, "Grasshopper": 0.1, "AmericanLadyCaterpillar": 0.1, "BandedWoolyBearCaterpillar": 0.1, "Centipede": 0.1, "Centipede2": 0.1, "Millipede": 0.1, "Millipede2": 0.1, "MonarchCaterpillar": 0.1, "Pillbug": 0.1, "SawflyLarva": 0.1, "SilkMothCaterpillar": 0.1, "Cockroach": 0.1, "SwallowtailCaterpillar": 0.1, "Termites": 0.1, "BaitFish": 0.7, "Tadpole": 0.7, "Leech": 0.9, "Snail": 0.5, "Slug": 0.5, "Slug2": 0.5, "Worm": 0.7, "Maggots": 0.7, "Crayfish": 0.5, "Shrimp": 0.5, "DogfoodOpen": 0.5, "FishFillet": 0.5, "Smallanimalmeat": 0.5, "Smallbirdmeat": 0.5, "MeatPatty": 0.5, "FrogMeat": 0.5, "Steak": 0.5, "Cheese": 0.0, "CannedCornOpen": 0.0, "Dough": 0.0, "Bread": 0.0, "BreadDough": 0.0, "BaguetteDough": 0.0, "Baguette": 0.0, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["ヒル"]}, {"id": "Bluegill", "jp": "ブルーギル", "river": true, "lake": true, "maxLen": "20", "trophyLen": "35", "maxW": 1.4, "trophyW": "1.2", "pred": false, "minLvl": 0, "lures": {"昆虫": 0.5, "小魚": 0.1, "ヒル・貝類": 0.7, "ミミズ類": 0.7, "肉類": 0.0, "パン・穀物": 0.0}, "coef": {"Cricket": 0.9, "Grasshopper": 0.5, "AmericanLadyCaterpillar": 0.5, "BandedWoolyBearCaterpillar": 0.5, "Centipede": 0.5, "Centipede2": 0.5, "Millipede": 0.5, "Millipede2": 0.5, "MonarchCaterpillar": 0.5, "Pillbug": 0.5, "SawflyLarva": 0.5, "SilkMothCaterpillar": 0.5, "Cockroach": 0.5, "SwallowtailCaterpillar": 0.5, "Termites": 0.5, "BaitFish": 0.1, "Tadpole": 0.1, "Leech": 0.7, "Snail": 0.7, "Slug": 0.7, "Slug2": 0.7, "Worm": 0.7, "Maggots": 0.7, "Crayfish": 0.0, "Shrimp": 0.0, "DogfoodOpen": 0.0, "FishFillet": 0.0, "Smallanimalmeat": 0.0, "Smallbirdmeat": 0.0, "MeatPatty": 0.0, "FrogMeat": 0.0, "Steak": 0.0, "Cheese": 0.0, "CannedCornOpen": 0.0, "Dough": 0.0, "Bread": 0.0, "BreadDough": 0.0, "BaguetteDough": 0.0, "Baguette": 0.0, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["コオロギ"]}, {"id": "WhiteCrappie", "jp": "ホワイトクラッピー", "river": true, "lake": true, "maxLen": "30", "trophyLen": "24", "maxW": 1.0, "trophyW": "2.5", "pred": false, "minLvl": 0, "lures": {"昆虫": 0.1, "小魚": 0.7, "ヒル・貝類": 0.7, "ミミズ類": 0.5, "肉類": 0.0, "パン・穀物": 0.0}, "coef": {"Cricket": 0.1, "Grasshopper": 0.1, "AmericanLadyCaterpillar": 0.1, "BandedWoolyBearCaterpillar": 0.1, "Centipede": 0.1, "Centipede2": 0.1, "Millipede": 0.1, "Millipede2": 0.1, "MonarchCaterpillar": 0.1, "Pillbug": 0.1, "SawflyLarva": 0.1, "SilkMothCaterpillar": 0.1, "Cockroach": 0.1, "SwallowtailCaterpillar": 0.1, "Termites": 0.1, "BaitFish": 0.7, "Tadpole": 0.9, "Leech": 0.7, "Snail": 0.7, "Slug": 0.7, "Slug2": 0.7, "Worm": 0.5, "Maggots": 0.5, "Crayfish": 0.0, "Shrimp": 0.0, "DogfoodOpen": 0.0, "FishFillet": 0.0, "Smallanimalmeat": 0.0, "Smallbirdmeat": 0.0, "MeatPatty": 0.0, "FrogMeat": 0.0, "Steak": 0.0, "Cheese": 0.0, "CannedCornOpen": 0.0, "Dough": 0.0, "Bread": 0.0, "BreadDough": 0.0, "BaguetteDough": 0.0, "Baguette": 0.0, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["オタマジャクシ"]}, {"id": "BlackCrappie", "jp": "ブラッククラッピー", "river": true, "lake": true, "maxLen": "25", "trophyLen": "28", "maxW": 1.0, "trophyW": "2.7", "pred": false, "minLvl": 0, "lures": {"昆虫": 0.1, "小魚": 0.7, "ヒル・貝類": 0.7, "ミミズ類": 0.5, "肉類": 0.0, "パン・穀物": 0.0}, "coef": {"Cricket": 0.1, "Grasshopper": 0.1, "AmericanLadyCaterpillar": 0.1, "BandedWoolyBearCaterpillar": 0.1, "Centipede": 0.1, "Centipede2": 0.1, "Millipede": 0.1, "Millipede2": 0.1, "MonarchCaterpillar": 0.1, "Pillbug": 0.1, "SawflyLarva": 0.1, "SilkMothCaterpillar": 0.1, "Cockroach": 0.1, "SwallowtailCaterpillar": 0.1, "Termites": 0.1, "BaitFish": 0.7, "Tadpole": 0.9, "Leech": 0.7, "Snail": 0.7, "Slug": 0.7, "Slug2": 0.7, "Worm": 0.5, "Maggots": 0.5, "Crayfish": 0.0, "Shrimp": 0.0, "DogfoodOpen": 0.0, "FishFillet": 0.0, "Smallanimalmeat": 0.0, "Smallbirdmeat": 0.0, "MeatPatty": 0.0, "FrogMeat": 0.0, "Steak": 0.0, "Cheese": 0.0, "CannedCornOpen": 0.0, "Dough": 0.0, "Bread": 0.0, "BreadDough": 0.0, "BaguetteDough": 0.0, "Baguette": 0.0, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["オタマジャクシ"]}, {"id": "RedearSunfish", "jp": "レッドイヤーサンフィッシュ", "river": true, "lake": true, "maxLen": "20", "trophyLen": "24", "maxW": 1.4, "trophyW": "0.9", "pred": false, "minLvl": 0, "lures": {"昆虫": 0.7, "小魚": 0.1, "ヒル・貝類": 0.7, "ミミズ類": 0.5, "肉類": 0.0, "パン・穀物": 0.0}, "coef": {"Cricket": 0.7, "Grasshopper": 0.9, "AmericanLadyCaterpillar": 0.7, "BandedWoolyBearCaterpillar": 0.7, "Centipede": 0.7, "Centipede2": 0.7, "Millipede": 0.7, "Millipede2": 0.7, "MonarchCaterpillar": 0.7, "Pillbug": 0.7, "SawflyLarva": 0.7, "SilkMothCaterpillar": 0.7, "Cockroach": 0.7, "SwallowtailCaterpillar": 0.7, "Termites": 0.7, "BaitFish": 0.1, "Tadpole": 0.1, "Leech": 0.7, "Snail": 0.7, "Slug": 0.7, "Slug2": 0.7, "Worm": 0.5, "Maggots": 0.5, "Crayfish": 0.0, "Shrimp": 0.0, "DogfoodOpen": 0.0, "FishFillet": 0.0, "Smallanimalmeat": 0.0, "Smallbirdmeat": 0.0, "MeatPatty": 0.0, "FrogMeat": 0.0, "Steak": 0.0, "Cheese": 0.0, "CannedCornOpen": 0.0, "Dough": 0.0, "Bread": 0.0, "BreadDough": 0.0, "BaguetteDough": 0.0, "Baguette": 0.0, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["バッタ"]}, {"id": "YellowPerch", "jp": "イエローパーチ", "river": true, "lake": true, "maxLen": "30", "trophyLen": "30", "maxW": 1.0, "trophyW": "1.9", "pred": false, "minLvl": 0, "lures": {"昆虫": 0.7, "小魚": 0.1, "ヒル・貝類": 0.7, "ミミズ類": 0.5, "肉類": 0.0, "パン・穀物": 0.0}, "coef": {"Cricket": 0.7, "Grasshopper": 0.7, "AmericanLadyCaterpillar": 0.7, "BandedWoolyBearCaterpillar": 0.7, "Centipede": 0.7, "Centipede2": 0.7, "Millipede": 0.7, "Millipede2": 0.7, "MonarchCaterpillar": 0.7, "Pillbug": 0.7, "SawflyLarva": 0.7, "SilkMothCaterpillar": 0.7, "Cockroach": 0.7, "SwallowtailCaterpillar": 0.7, "Termites": 0.7, "BaitFish": 0.1, "Tadpole": 0.1, "Leech": 0.7, "Snail": 0.9, "Slug": 0.7, "Slug2": 0.7, "Worm": 0.5, "Maggots": 0.5, "Crayfish": 0.0, "Shrimp": 0.0, "DogfoodOpen": 0.0, "FishFillet": 0.0, "Smallanimalmeat": 0.0, "Smallbirdmeat": 0.0, "MeatPatty": 0.0, "FrogMeat": 0.0, "Steak": 0.0, "Cheese": 0.0, "CannedCornOpen": 0.0, "Dough": 0.0, "Bread": 0.0, "BreadDough": 0.0, "BaguetteDough": 0.0, "Baguette": 0.0, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["カタツムリ"]}, {"id": "Sauger", "jp": "ソーガー", "river": true, "lake": true, "maxLen": "45", "trophyLen": "50", "maxW": 1.9, "trophyW": "1.8", "pred": false, "minLvl": 2, "lures": {"昆虫": 0.5, "小魚": 0.1, "ヒル・貝類": 0.7, "ミミズ類": 0.7, "肉類": 0.0, "パン・穀物": 0.0}, "coef": {"Cricket": 0.5, "Grasshopper": 0.5, "AmericanLadyCaterpillar": 0.5, "BandedWoolyBearCaterpillar": 0.5, "Centipede": 0.5, "Centipede2": 0.5, "Millipede": 0.5, "Millipede2": 0.5, "MonarchCaterpillar": 0.5, "Pillbug": 0.5, "SawflyLarva": 0.5, "SilkMothCaterpillar": 0.5, "Cockroach": 0.5, "SwallowtailCaterpillar": 0.5, "Termites": 0.5, "BaitFish": 0.1, "Tadpole": 0.1, "Leech": 0.7, "Snail": 0.7, "Slug": 0.7, "Slug2": 0.7, "Worm": 0.7, "Maggots": 0.7, "Crayfish": 0.9, "Shrimp": 0.0, "DogfoodOpen": 0.0, "FishFillet": 0.0, "Smallanimalmeat": 0.0, "Smallbirdmeat": 0.0, "MeatPatty": 0.0, "FrogMeat": 0.0, "Steak": 0.0, "Cheese": 0.0, "CannedCornOpen": 0.0, "Dough": 0.0, "Bread": 0.0, "BreadDough": 0.0, "BaguetteDough": 0.0, "Baguette": 0.0, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["ザリガニ"]}, {"id": "GreenSunfish", "jp": "グリーンサンフィッシュ", "river": true, "lake": true, "maxLen": "20", "trophyLen": "20", "maxW": 1.4, "trophyW": "0.9", "pred": false, "minLvl": 0, "lures": {"昆虫": 0.7, "小魚": 0.1, "ヒル・貝類": 0.5, "ミミズ類": 0.7, "肉類": 0.0, "パン・穀物": 0.0}, "coef": {"Cricket": 0.7, "Grasshopper": 0.7, "AmericanLadyCaterpillar": 0.7, "BandedWoolyBearCaterpillar": 0.7, "Centipede": 0.7, "Centipede2": 0.7, "Millipede": 0.7, "Millipede2": 0.7, "MonarchCaterpillar": 0.7, "Pillbug": 0.7, "SawflyLarva": 0.7, "SilkMothCaterpillar": 0.7, "Cockroach": 0.7, "SwallowtailCaterpillar": 0.7, "Termites": 0.7, "BaitFish": 0.1, "Tadpole": 0.1, "Leech": 0.5, "Snail": 0.5, "Slug": 0.5, "Slug2": 0.5, "Worm": 0.9, "Maggots": 0.7, "Crayfish": 0.0, "Shrimp": 0.0, "DogfoodOpen": 0.0, "FishFillet": 0.0, "Smallanimalmeat": 0.0, "Smallbirdmeat": 0.0, "MeatPatty": 0.0, "FrogMeat": 0.0, "Steak": 0.0, "Cheese": 0.0, "CannedCornOpen": 0.0, "Dough": 0.0, "Bread": 0.0, "BreadDough": 0.0, "BaguetteDough": 0.0, "Baguette": 0.0, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["ミミズ"]}, {"id": "Walleye", "jp": "ウォールアイ", "river": true, "lake": true, "maxLen": "80", "trophyLen": "88", "maxW": 9.0, "trophyW": "13", "pred": false, "minLvl": 7, "lures": {"昆虫": 0.7, "小魚": 0.7, "ヒル・貝類": 0.7, "ミミズ類": 0.5, "肉類": 0.3, "パン・穀物": 0.0}, "coef": {"Cricket": 0.7, "Grasshopper": 0.7, "AmericanLadyCaterpillar": 0.7, "BandedWoolyBearCaterpillar": 0.7, "Centipede": 0.7, "Centipede2": 0.7, "Millipede": 0.7, "Millipede2": 0.7, "MonarchCaterpillar": 0.7, "Pillbug": 0.7, "SawflyLarva": 0.7, "SilkMothCaterpillar": 0.7, "Cockroach": 0.7, "SwallowtailCaterpillar": 0.7, "Termites": 0.7, "BaitFish": 0.7, "Tadpole": 0.7, "Leech": 0.9, "Snail": 0.7, "Slug": 0.7, "Slug2": 0.7, "Worm": 0.5, "Maggots": 0.5, "Crayfish": 0.3, "Shrimp": 0.3, "DogfoodOpen": 0.3, "FishFillet": 0.3, "Smallanimalmeat": 0.3, "Smallbirdmeat": 0.3, "MeatPatty": 0.3, "FrogMeat": 0.3, "Steak": 0.3, "Cheese": 0.0, "CannedCornOpen": 0.0, "Dough": 0.0, "Bread": 0.0, "BreadDough": 0.0, "BaguetteDough": 0.0, "Baguette": 0.0, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["ヒル"]}, {"id": "FreshwaterDrum", "jp": "フレッシュウォータードラム", "river": true, "lake": true, "maxLen": "76", "trophyLen": "95", "maxW": 4.5, "trophyW": "24.5", "pred": false, "minLvl": 6, "lures": {"昆虫": 0.1, "小魚": 0.0, "ヒル・貝類": 0.5, "ミミズ類": 0.7, "肉類": 0.0, "パン・穀物": 0.7}, "coef": {"Cricket": 0.1, "Grasshopper": 0.1, "AmericanLadyCaterpillar": 0.1, "BandedWoolyBearCaterpillar": 0.1, "Centipede": 0.1, "Centipede2": 0.1, "Millipede": 0.1, "Millipede2": 0.1, "MonarchCaterpillar": 0.1, "Pillbug": 0.1, "SawflyLarva": 0.1, "SilkMothCaterpillar": 0.1, "Cockroach": 0.1, "SwallowtailCaterpillar": 0.1, "Termites": 0.1, "BaitFish": 0.0, "Tadpole": 0.0, "Leech": 0.5, "Snail": 0.5, "Slug": 0.5, "Slug2": 0.5, "Worm": 0.7, "Maggots": 0.7, "Crayfish": 0.0, "Shrimp": 0.0, "DogfoodOpen": 0.0, "FishFillet": 0.0, "Smallanimalmeat": 0.0, "Smallbirdmeat": 0.0, "MeatPatty": 0.0, "FrogMeat": 0.0, "Steak": 0.0, "Cheese": 0.7, "CannedCornOpen": 0.7, "Dough": 0.9, "Bread": 0.7, "BreadDough": 0.7, "BaguetteDough": 0.7, "Baguette": 0.7, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["パン生地"]}, {"id": "BlueCatfish", "jp": "ブルーキャットフィッシュ", "river": true, "lake": true, "maxLen": "117", "trophyLen": "165", "maxW": 32.0, "trophyW": "68", "pred": true, "minLvl": 9, "lures": {"昆虫": 0.1, "小魚": 0.0, "ヒル・貝類": 0.1, "ミミズ類": 0.5, "肉類": 0.7, "パン・穀物": 0.5}, "coef": {"Cricket": 0.1, "Grasshopper": 0.1, "AmericanLadyCaterpillar": 0.1, "BandedWoolyBearCaterpillar": 0.1, "Centipede": 0.1, "Centipede2": 0.1, "Millipede": 0.1, "Millipede2": 0.1, "MonarchCaterpillar": 0.1, "Pillbug": 0.1, "SawflyLarva": 0.1, "SilkMothCaterpillar": 0.1, "Cockroach": 0.1, "SwallowtailCaterpillar": 0.1, "Termites": 0.1, "BaitFish": 0.0, "Tadpole": 0.0, "Leech": 0.1, "Snail": 0.1, "Slug": 0.1, "Slug2": 0.1, "Worm": 0.5, "Maggots": 0.5, "Crayfish": 0.7, "Shrimp": 0.7, "DogfoodOpen": 0.9, "FishFillet": 0.7, "Smallanimalmeat": 0.7, "Smallbirdmeat": 0.7, "MeatPatty": 0.7, "FrogMeat": 0.7, "Steak": 0.7, "Cheese": 0.5, "CannedCornOpen": 0.5, "Dough": 0.5, "Bread": 0.5, "BreadDough": 0.5, "BaguetteDough": 0.5, "Baguette": 0.5, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["缶詰 - ドッグフード(開封済み)"]}, {"id": "ChannelCatfish", "jp": "アメリカナマズ", "river": true, "lake": true, "maxLen": "30", "trophyLen": "80", "maxW": 2.3, "trophyW": "26", "pred": false, "minLvl": 4, "lures": {"昆虫": 0.1, "小魚": 0.0, "ヒル・貝類": 0.1, "ミミズ類": 0.5, "肉類": 0.7, "パン・穀物": 0.5}, "coef": {"Cricket": 0.1, "Grasshopper": 0.1, "AmericanLadyCaterpillar": 0.1, "BandedWoolyBearCaterpillar": 0.1, "Centipede": 0.1, "Centipede2": 0.1, "Millipede": 0.1, "Millipede2": 0.1, "MonarchCaterpillar": 0.1, "Pillbug": 0.1, "SawflyLarva": 0.1, "SilkMothCaterpillar": 0.1, "Cockroach": 0.1, "SwallowtailCaterpillar": 0.1, "Termites": 0.1, "BaitFish": 0.0, "Tadpole": 0.0, "Leech": 0.1, "Snail": 0.1, "Slug": 0.1, "Slug2": 0.1, "Worm": 0.5, "Maggots": 0.5, "Crayfish": 0.7, "Shrimp": 0.7, "DogfoodOpen": 0.9, "FishFillet": 0.7, "Smallanimalmeat": 0.7, "Smallbirdmeat": 0.7, "MeatPatty": 0.7, "FrogMeat": 0.7, "Steak": 0.7, "Cheese": 0.5, "CannedCornOpen": 0.5, "Dough": 0.5, "Bread": 0.5, "BreadDough": 0.5, "BaguetteDough": 0.5, "Baguette": 0.5, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["缶詰 - ドッグフード(開封済み)"]}, {"id": "FlatheadCatfish", "jp": "フラットヘッドキャットフィッシュ", "river": true, "lake": true, "maxLen": "140", "trophyLen": "147", "maxW": 27.0, "trophyW": "55", "pred": true, "minLvl": 8, "lures": {"昆虫": 0.1, "小魚": 0.0, "ヒル・貝類": 0.1, "ミミズ類": 0.5, "肉類": 0.7, "パン・穀物": 0.5}, "coef": {"Cricket": 0.1, "Grasshopper": 0.1, "AmericanLadyCaterpillar": 0.1, "BandedWoolyBearCaterpillar": 0.1, "Centipede": 0.1, "Centipede2": 0.1, "Millipede": 0.1, "Millipede2": 0.1, "MonarchCaterpillar": 0.1, "Pillbug": 0.1, "SawflyLarva": 0.1, "SilkMothCaterpillar": 0.1, "Cockroach": 0.1, "SwallowtailCaterpillar": 0.1, "Termites": 0.1, "BaitFish": 0.0, "Tadpole": 0.0, "Leech": 0.1, "Snail": 0.1, "Slug": 0.1, "Slug2": 0.1, "Worm": 0.5, "Maggots": 0.5, "Crayfish": 0.7, "Shrimp": 0.7, "DogfoodOpen": 0.9, "FishFillet": 0.7, "Smallanimalmeat": 0.7, "Smallbirdmeat": 0.7, "MeatPatty": 0.7, "FrogMeat": 0.7, "Steak": 0.7, "Cheese": 0.5, "CannedCornOpen": 0.5, "Dough": 0.5, "Bread": 0.5, "BreadDough": 0.5, "BaguetteDough": 0.5, "Baguette": 0.5, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["缶詰 - ドッグフード(開封済み)"]}, {"id": "Muskellunge", "jp": "マスキー", "river": true, "lake": true, "maxLen": "101", "trophyLen": "127", "maxW": 18.0, "trophyW": "32", "pred": true, "minLvl": 8, "lures": {"昆虫": 0.1, "小魚": 0.7, "ヒル・貝類": 0.5, "ミミズ類": 0.5, "肉類": 0.5, "パン・穀物": 0.0}, "coef": {"Cricket": 0.1, "Grasshopper": 0.1, "AmericanLadyCaterpillar": 0.1, "BandedWoolyBearCaterpillar": 0.1, "Centipede": 0.1, "Centipede2": 0.1, "Millipede": 0.1, "Millipede2": 0.1, "MonarchCaterpillar": 0.1, "Pillbug": 0.1, "SawflyLarva": 0.1, "SilkMothCaterpillar": 0.1, "Cockroach": 0.1, "SwallowtailCaterpillar": 0.1, "Termites": 0.1, "BaitFish": 0.9, "Tadpole": 0.7, "Leech": 0.5, "Snail": 0.5, "Slug": 0.5, "Slug2": 0.5, "Worm": 0.5, "Maggots": 0.5, "Crayfish": 0.5, "Shrimp": 0.5, "DogfoodOpen": 0.5, "FishFillet": 0.5, "Smallanimalmeat": 0.5, "Smallbirdmeat": 0.5, "MeatPatty": 0.5, "FrogMeat": 0.5, "Steak": 0.5, "Cheese": 0.0, "CannedCornOpen": 0.0, "Dough": 0.0, "Bread": 0.0, "BreadDough": 0.0, "BaguetteDough": 0.0, "Baguette": 0.0, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["餌魚"]}, {"id": "AligatorGar", "jp": "アリゲーターガー", "river": true, "lake": true, "maxLen": "180", "trophyLen": "243", "maxW": 45.0, "trophyW": "150", "pred": true, "minLvl": 10, "lures": {"昆虫": 0.1, "小魚": 0.7, "ヒル・貝類": 0.5, "ミミズ類": 0.5, "肉類": 0.5, "パン・穀物": 0.0}, "coef": {"Cricket": 0.1, "Grasshopper": 0.1, "AmericanLadyCaterpillar": 0.1, "BandedWoolyBearCaterpillar": 0.1, "Centipede": 0.1, "Centipede2": 0.1, "Millipede": 0.1, "Millipede2": 0.1, "MonarchCaterpillar": 0.1, "Pillbug": 0.1, "SawflyLarva": 0.1, "SilkMothCaterpillar": 0.1, "Cockroach": 0.1, "SwallowtailCaterpillar": 0.1, "Termites": 0.1, "BaitFish": 0.9, "Tadpole": 0.7, "Leech": 0.5, "Snail": 0.5, "Slug": 0.5, "Slug2": 0.5, "Worm": 0.5, "Maggots": 0.5, "Crayfish": 0.5, "Shrimp": 0.5, "DogfoodOpen": 0.5, "FishFillet": 0.5, "Smallanimalmeat": 0.5, "Smallbirdmeat": 0.5, "MeatPatty": 0.5, "FrogMeat": 0.5, "Steak": 0.5, "Cheese": 0.0, "CannedCornOpen": 0.0, "Dough": 0.0, "Bread": 0.0, "BreadDough": 0.0, "BaguetteDough": 0.0, "Baguette": 0.0, "JigLure": 0.5, "MinnowLure": 0.5}, "best": ["餌魚"]}, {"id": "Paddlefish", "jp": "ヘラチョウザメ", "river": true, "lake": true, "maxLen": "150", "trophyLen": "220", "maxW": 27.0, "trophyW": "90", "pred": false, "minLvl": 8, "lures": {"昆虫": 0.1, "小魚": 0.1, "ヒル・貝類": 0.1, "ミミズ類": 0.1, "肉類": 0.1, "パン・穀物": 0.1}, "coef": {"Cricket": 0.1, "Grasshopper": 0.1, "AmericanLadyCaterpillar": 0.1, "BandedWoolyBearCaterpillar": 0.1, "Centipede": 0.1, "Centipede2": 0.1, "Millipede": 0.1, "Millipede2": 0.1, "MonarchCaterpillar": 0.1, "Pillbug": 0.1, "SawflyLarva": 0.1, "SilkMothCaterpillar": 0.1, "Cockroach": 0.1, "SwallowtailCaterpillar": 0.1, "Termites": 0.1, "BaitFish": 0.1, "Tadpole": 0.1, "Leech": 0.1, "Snail": 0.1, "Slug": 0.1, "Slug2": 0.1, "Worm": 0.1, "Maggots": 0.1, "Crayfish": 0.1, "Shrimp": 0.1, "DogfoodOpen": 0.1, "FishFillet": 0.1, "Smallanimalmeat": 0.1, "Smallbirdmeat": 0.1, "MeatPatty": 0.1, "FrogMeat": 0.1, "Steak": 0.1, "Cheese": 0.1, "CannedCornOpen": 0.1, "Dough": 0.1, "Bread": 0.1, "BreadDough": 0.1, "BaguetteDough": 0.1, "Baguette": 0.1, "JigLure": 0.1, "MinnowLure": 0.1}, "best": []}, {"id": "BaitFish", "jp": "餌魚", "river": true, "lake": true, "maxLen": "10", "trophyLen": null, "maxW": 0.05, "trophyW": null, "pred": false, "minLvl": 0, "lures": {"昆虫": 0.7, "小魚": 0.0, "ヒル・貝類": 0.0, "ミミズ類": 0.7, "肉類": 0.0, "パン・穀物": 0.7}, "coef": {"Cricket": 0.7, "Grasshopper": 0.7, "AmericanLadyCaterpillar": 0.7, "BandedWoolyBearCaterpillar": 0.7, "Centipede": 0.7, "Centipede2": 0.7, "Millipede": 0.7, "Millipede2": 0.7, "MonarchCaterpillar": 0.7, "Pillbug": 0.7, "SawflyLarva": 0.7, "SilkMothCaterpillar": 0.7, "Cockroach": 0.7, "SwallowtailCaterpillar": 0.7, "Termites": 0.7, "BaitFish": 0.0, "Tadpole": 0.0, "Leech": 0.0, "Snail": 0.0, "Slug": 0.0, "Slug2": 0.0, "Worm": 0.7, "Maggots": 0.7, "Crayfish": 0.0, "Shrimp": 0.0, "DogfoodOpen": 0.0, "FishFillet": 0.0, "Smallanimalmeat": 0.0, "Smallbirdmeat": 0.0, "MeatPatty": 0.0, "FrogMeat": 0.0, "Steak": 0.0, "Cheese": 0.7, "CannedCornOpen": 0.7, "Dough": 0.7, "Bread": 0.7, "BreadDough": 0.7, "BaguetteDough": 0.7, "Baguette": 0.7, "JigLure": 0.0, "MinnowLure": 0.0}, "best": []}];
+const ITEMS = [{"id": "Cricket", "jp": "コオロギ", "cls": "昆虫"}, {"id": "Grasshopper", "jp": "バッタ", "cls": "昆虫"}, {"id": "AmericanLadyCaterpillar", "jp": "イモムシ", "cls": "昆虫"}, {"id": "BandedWoolyBearCaterpillar", "jp": "イモムシ", "cls": "昆虫"}, {"id": "Centipede", "jp": "ムカデ", "cls": "昆虫"}, {"id": "Centipede2", "jp": "ムカデ", "cls": "昆虫"}, {"id": "Millipede", "jp": "ヤスデ", "cls": "昆虫"}, {"id": "Millipede2", "jp": "ヤスデ", "cls": "昆虫"}, {"id": "MonarchCaterpillar", "jp": "イモムシ", "cls": "昆虫"}, {"id": "Pillbug", "jp": "ダンゴムシ", "cls": "昆虫"}, {"id": "SawflyLarva", "jp": "イモムシ", "cls": "昆虫"}, {"id": "SilkMothCaterpillar", "jp": "イモムシ", "cls": "昆虫"}, {"id": "Cockroach", "jp": "ゴキブリ", "cls": "昆虫"}, {"id": "SwallowtailCaterpillar", "jp": "イモムシ", "cls": "昆虫"}, {"id": "Termites", "jp": "シロアリ", "cls": "昆虫"}, {"id": "BaitFish", "jp": "餌魚", "cls": "小魚"}, {"id": "Tadpole", "jp": "オタマジャクシ", "cls": "小魚"}, {"id": "Leech", "jp": "ヒル", "cls": "ヒル・貝類"}, {"id": "Snail", "jp": "カタツムリ", "cls": "ヒル・貝類"}, {"id": "Slug", "jp": "ナメクジ", "cls": "ヒル・貝類"}, {"id": "Slug2", "jp": "ナメクジ", "cls": "ヒル・貝類"}, {"id": "Worm", "jp": "ミミズ", "cls": "ミミズ類"}, {"id": "Maggots", "jp": "ウジムシ", "cls": "ミミズ類"}, {"id": "Crayfish", "jp": "ザリガニ", "cls": "肉類"}, {"id": "Shrimp", "jp": "エビ", "cls": "肉類"}, {"id": "DogfoodOpen", "jp": "缶詰 - ドッグフード(開封済み)", "cls": "肉類"}, {"id": "FishFillet", "jp": "魚の切身", "cls": "肉類"}, {"id": "Smallanimalmeat", "jp": "げっ歯類の肉", "cls": "肉類"}, {"id": "Smallbirdmeat", "jp": "小鳥の肉", "cls": "肉類"}, {"id": "MeatPatty", "jp": "ビーフパテ", "cls": "肉類"}, {"id": "FrogMeat", "jp": "カエルの肉", "cls": "肉類"}, {"id": "Steak", "jp": "ステーキ", "cls": "肉類"}, {"id": "Cheese", "jp": "チーズ", "cls": "パン・穀物"}, {"id": "CannedCornOpen", "jp": "缶詰 - トウモロコシ(開封済み)", "cls": "パン・穀物"}, {"id": "Dough", "jp": "パン生地", "cls": "パン・穀物"}, {"id": "Bread", "jp": "パン", "cls": "パン・穀物"}, {"id": "BreadDough", "jp": "パン", "cls": "パン・穀物"}, {"id": "BaguetteDough", "jp": "バゲット", "cls": "パン・穀物"}, {"id": "Baguette", "jp": "バゲット", "cls": "パン・穀物"}, {"id": "JigLure", "jp": "ジグルアー", "cls": "ルアー"}, {"id": "MinnowLure", "jp": "ミノールアー", "cls": "ルアー"}];
+const SIZE = [[95,5,0],[85,15,0],[75,24,1],[70,25,5],[60,30,10],[48,40,12],[35,45,20],[25,45,30],[20,40,40],[15,40,45],[10,40,50]];
+const LIM = [1.4,1.5,1.9,2.2,2.3,2.8,4.5,9,27,32,45];
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const st = { lv: 3, bait: "Worm", trash: 0.2, shore: false, reel: true };
+try { const m = location.hash.match(/lv=(\d+)/); if (m && +m[1] <= 10) st.lv = +m[1]; } catch (e) {}
+
+const fmt = (v) => (Math.round(v * 10) / 10).toString();
+const cleanF = (lv) => lv >= 9 ? 0.2 : lv >= 7 ? 0.6 : lv >= 5 ? 0.8 : 1;
+function pFish(lv, tf) {
+  const t = tf * cleanF(lv), a = lv / 30, b = 0.5 + lv / 20;
+  return Math.max(0, Math.min(1, (b - Math.max(t, a)) / (b - a)));
+}
+const pEmpty = (lv) => Math.min(1, (0.1 + lv / 20) / 4);
+function sizes(lv, shore) {
+  let [s, m, l] = SIZE[lv];
+  if (shore) { s = s + m / 2 + l / 2; m /= 2; l /= 2; }
+  return [s, m, l];
+}
+const catchable = (f, lv) => f.maxW <= LIM[lv] && (st.reel || !f.pred);
+
+function buildChips() {
+  const box = $("lvchips");
+  for (let i = 0; i <= 10; i++) {
+    const b = document.createElement("button");
+    b.className = "chip"; b.textContent = "Lv" + i; b.dataset.lv = i;
+    b.onclick = () => { st.lv = i; render(); };
+    box.appendChild(b);
+  }
+  const sel = $("bait");
+  const groups = {};
+  ITEMS.forEach(i => (groups[i.cls] = groups[i.cls] || []).push(i));
+  Object.entries(groups).forEach(([cls, arr]) => {
+    const og = document.createElement("optgroup"); og.label = cls;
+    arr.forEach(i => { const o = document.createElement("option"); o.value = i.id; o.textContent = i.jp; og.appendChild(o); });
+    sel.appendChild(og);
+  });
+  sel.value = st.bait;
+  sel.onchange = () => { st.bait = sel.value; render(); };
+  $("trash").onchange = (e) => { st.trash = +e.target.value; render(); };
+  $("shore").onchange = (e) => { st.shore = e.target.checked; render(); };
+  $("reel").onchange = (e) => { st.reel = e.target.checked; render(); };
+}
+
+function renderTable() {
+  let h = `<tr><th>Lv</th><th>魚が掛かる確率</th><th>魚なし水域</th><th>サイズの出方(小/中/大)</th><th>重量上限</th><th>張力上限(竿1.0)</th><th>餌の消費(生き餌)</th><th>餌の消費(ルアー)</th></tr>`;
+  for (let lv = 0; lv <= 10; lv++) {
+    const [s, m, l] = sizes(lv, st.shore);
+    const pf = pFish(lv, st.trash) * 100;
+    h += `<tr class="${lv === st.lv ? "cur" : ""}"><td>Lv${lv}</td>
+      <td><span class="pct">${fmt(pf)}%<span class="pbar"><i style="width:${pf}%"></i></span></span></td>
+      <td>${fmt(pEmpty(lv) * 100)}%</td>
+      <td><div class="bar" title="小${fmt(s)}% / 中${fmt(m)}% / 大${fmt(l)}%"><i class="s" style="width:${s}%"></i><i class="m" style="width:${m}%"></i><i class="l" style="width:${l}%"></i></div>
+        <span class="meta">${fmt(s)} / ${fmt(m)} / ${fmt(l)}</span></td>
+      <td>${LIM[lv]} kg</td><td>${120 + lv * 10}</td>
+      <td>${fmt((19 - lv) / 20 * 100)}%</td><td>${fmt(100 / (30 * (lv + 1)))}%</td></tr>`;
+  }
+  $("tbl").innerHTML = h;
+}
+
+function renderFish() {
+  const lv = st.lv, b = st.bait;
+  const cands = FISH.filter(f => catchable(f, lv));
+  const wsum = cands.reduce((a, f) => a + (f.coef[b] || 0), 0);
+  const item = ITEMS.find(i => i.id === b);
+  const [s, m, l] = sizes(lv, st.shore);
+  const sorted = [...FISH].sort((x, y) => {
+    const cx = catchable(x, lv), cy = catchable(y, lv);
+    if (cx !== cy) return cx ? -1 : 1;
+    return ((y.coef[b] || 0) - (x.coef[b] || 0)) || x.minLvl - y.minLvl;
+  });
+  $("fishTitle").textContent = `Lv${lv} で釣れる魚(${item ? item.jp : ""}を使用)`;
+  $("fishes").innerHTML = sorted.map(f => {
+    const ok = catchable(f, lv), c = f.coef[b] || 0;
+    const share = ok && wsum > 0 ? c / wsum * 100 : 0;
+    const total = share * pFish(lv, st.trash);
+    const loc = f.river && f.lake ? "川・湖" : f.river ? "川" : "湖";
+    const lenTxt = +f.trophyLen > +f.maxLen ? `最大 ${f.maxLen}cm(記録級 ${f.trophyLen}cm)` : `最大 ${f.maxLen}cm`;
+    const wTxt = +f.trophyW > +f.maxW ? `最大 ${f.maxW}kg(記録級 ${f.trophyW}kg)` : `最大 ${f.maxW}kg`;
+    const why = ok ? "" : (f.pred && !st.reel && f.maxW <= LIM[lv] ? "要リール操作" : `Lv${f.minLvl}から`);
+    return `<article class="fish ${ok ? "" : "no"}">
+      <div class="nm"><b>${esc(f.jp)}</b><small>${esc(f.id)}</small></div>
+      <div class="lvc"><span class="tag lv">Lv${f.minLvl}~</span></div>
+      <div class="meta">${esc(lenTxt)}<br>${esc(wTxt)}</div>
+      <div class="best"><span class="meta">${f.best.length ? "好物: " + esc(f.best.join("、")) : "好物なし"}</span><br>
+        <span class="meta">${esc(item ? item.jp : "")}の係数 ${c}</span></div>
+      <div class="share">${ok ? (c > 0 ? fmt(share) + "%" : "—") : esc(why)}<small>${ok && c > 0 ? "全体 " + fmt(total) + "%" : ""}</small></div>
+      <div class="tags" style="grid-column:1/-1"><span class="tag">${loc}</span>${f.pred ? '<span class="tag pred">肉食・要リール</span>' : ""}</div>
+    </article>`;
+  }).join("");
+  const none = wsum === 0 ? "この餌ではこのレベルで釣れる魚がいません(ゴミ扱いになります)。" : "";
+  $("fishNote").textContent = `「割合」は釣れる魚種の中での比率、「全体」は魚が掛かる確率(${fmt(pFish(lv, st.trash) * 100)}%)を掛けた値。小/中/大の割合は ${fmt(s)}/${fmt(m)}/${fmt(l)}%。 ${none}`;
+}
+
+function render() {
+  document.querySelectorAll("#lvchips .chip").forEach(c => c.setAttribute("aria-pressed", +c.dataset.lv === st.lv));
+  renderTable(); renderFish();
+  try { history.replaceState(null, "", "#lv=" + st.lv); } catch (e) {}
+}
+
+const COEF = {
+  temp: [["15〜30℃", 1], ["0〜15℃ / 30〜40℃", 0.75], ["40℃以上 / −10〜0℃", 0.5], ["−10℃以下", 0.25]],
+  weather: [["晴れ・曇り", 1], ["雨", 1.2], ["霧 / 強風", 0.8]],
+  time: [["通常の時間帯", 1], ["朝夕(4〜6時台・18〜20時台)", 1.2]],
+  hook: [["釣り針(通常・鍛造・骨)", 1.2], ["釘", 1], ["クリップ", 0.8], ["針なし", 0]],
+  num: [["26匹以上", 1.5], ["10〜25匹", 1], ["1〜9匹", 0.5], ["0匹", 0.1, 0]],
+};
+const CNAME = { temp: "気温", weather: "天気", time: "時間帯", hook: "針", num: "魚の数" };
+const cs = { temp: 0, weather: 0, time: 0, hook: 0, num: 1 };
+function renderCoef() {
+  const ids = { temp: "cTemp", weather: "cWeather", time: "cTime", hook: "cHook", num: "cNum" };
+  Object.keys(ids).forEach(k => {
+    const sel = $(ids[k]);
+    if (!sel.options.length) {
+      COEF[k].forEach((o, i) => sel.add(new Option(o[0] + "(×" + o[1] + ")", i)));
+      sel.value = cs[k];
+      sel.onchange = () => { cs[k] = +sel.value; renderCoef(); };
+    }
+  });
+  const v = (k) => COEF[k][cs[k]][1];
+  const raw = 0.8 * v("temp") * v("weather") * v("time") * v("hook") * v("num");
+  const nw = COEF.num[cs.num][2] ?? v("num");
+  const nib = nw * v("temp") * v("weather") * v("time") * 100;
+  const wait = nib === 0 ? 2000 : nib < 40 ? 1500 : nib < 65 ? 1000 : nib < 80 ? 650 : 500;
+  $("calc").innerHTML = `<span class="big">${Math.min(100, Math.round(raw * 1000) / 10)}%</span>
+    <span class="eq">食いつく確率(計算値 ${Math.round(raw * 1000) / 10}%、100%が上限)</span>
+    <span class="eq">次の食いつき判定までの間隔: 約${Math.round(wait * 0.8 / 30)}秒(目安)</span>`;
+  $("coefTbl").innerHTML = `<tr><th>要素</th><th>条件</th><th>係数</th></tr>` +
+    Object.keys(COEF).map(k => COEF[k].map((o, i) => `<tr${cs[k] === i ? ' class="cur"' : ""}><td>${i === 0 ? CNAME[k] : ""}</td><td>${o[0]}</td><td>×${o[1]}</td></tr>`).join("")).join("");
+}
+buildChips(); render(); renderCoef();
+</script>
+</body>
+</html>
